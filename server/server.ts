@@ -8,7 +8,7 @@ app.use(express.json());
 const server = app.listen(process.env.SERVER_PORT, () => {
   if (process.send) {
     process.send(
-      `Server running at http://localhost:${process.env.SERVER_PORT}\n\n`
+      `Server running at http://${process.env.DOMAIN_NAME}:${process.env.SERVER_PORT}\n\n`
     );
   }
 });
@@ -27,6 +27,6 @@ interface Message {
 io.on("connection", (socket: Socket) => {
   console.log("connected");
   socket.on("message", (message: Message) => {
-      socket.broadcast.emit("messageReceived", message);
+      socket.broadcast.emit("message", message);
   });
 });
