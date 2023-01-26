@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
@@ -17,7 +17,7 @@ import { Socket, Server } from "socket.io";
 const io = new Server(server, {
   cors: {
     origin: "*",
-  }
+  },
 });
 interface Message {
   sender: string;
@@ -25,10 +25,8 @@ interface Message {
   content: string | undefined;
 }
 io.on("connection", (socket: Socket) => {
-  console.log("connected")
-  socket.on("message", (message:Message) => {
-    console.log(message);
-    socket.broadcast.emit("message", message);
+  console.log("connected");
+  socket.on("message", (message: Message) => {
+      socket.broadcast.emit("messageReceived", message);
   });
 });
-
