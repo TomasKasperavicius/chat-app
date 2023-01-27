@@ -27,6 +27,12 @@ interface Message {
 io.on("connection", (socket: Socket) => {
   console.log("connected");
   socket.on("message", (message: Message) => {
-      socket.broadcast.emit("message", message);
+    socket.broadcast.emit("message", message);
+  });
+  socket.on("typing", (username: string) => {
+    socket.broadcast.emit("typing", username);
+  });
+  socket.on("stopped typing", (username: string) => {
+    socket.broadcast.emit("stopped typing", username);
   });
 });

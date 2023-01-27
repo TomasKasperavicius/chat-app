@@ -23,27 +23,37 @@ interface Message {
   timestamp: number;
   content: string | undefined;
 }
-interface HomeProps{
-  DOMAIN_NAME:string,
-  SERVER_PORT:number,
+
+interface HomeProps {
+  DOMAIN_NAME: string;
+  SERVER_PORT: number;
 }
 var socket: Socket | undefined = undefined;
-function Home({DOMAIN_NAME,SERVER_PORT}:HomeProps) {
+function Home({ DOMAIN_NAME, SERVER_PORT }: HomeProps) {
   //const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [user, setUser] = useState<string>("");
   const messageInput = useRef<HTMLInputElement | null>(null);
   const userInput = useRef<HTMLInputElement | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   // const router = useRouter();
   useEffect(() => {
     // (async () => await fetch("/api/socket"))();
     if (socket === undefined) {
-      var newSocket: Socket = io(
-        `ws://${DOMAIN_NAME}:${SERVER_PORT}`
-      );
+      var newSocket: Socket = io(`ws://${DOMAIN_NAME}:${SERVER_PORT}`);
       newSocket.on("message", (message: Message) => {
         setMessages((messages) => {
           return [...messages, message];
+        });
+      });
+      newSocket.on("typing", (username: string) => {
+        setTypingUsers((typingUsers) => {
+          return [...typingUsers,  username];
+        });
+      });
+      newSocket.on("stopped typing", (username: string) => {
+        setTypingUsers((typingUsers) => {
+          return [...typingUsers.filter((el) => el !== username)];
         });
       });
       socket = newSocket;
@@ -221,6 +231,12 @@ function Home({DOMAIN_NAME,SERVER_PORT}:HomeProps) {
                 );
               })}
           </div>
+          <div>
+          {typingUsers.length > 0 &&
+            typingUsers.map((user, key) => {
+              return <div key={key}>{user} is typing...</div>;
+            })}
+            </div>
           <div className="flex w-1/2 relative">
             <div className="w-full flex justify-end absolute">
               <Input
@@ -230,6 +246,8 @@ function Home({DOMAIN_NAME,SERVER_PORT}:HomeProps) {
                 contentRightStyling={false}
                 placeholder="Type your message..."
                 title="messageInputBox"
+                onFocus={() => socket?.emit("typing", user)}
+                onBlur={() => socket?.emit("stopped typing", user)}
                 contentRight={
                   <SendButton title="sendMessageButton" onClick={sendMessage}>
                     <SendIcon
