@@ -21,6 +21,7 @@ const io = new Server(server, {
 });
 interface Message {
   sender: string;
+  receiver?: string;
   timestamp: number;
   content: string | undefined;
 }
@@ -28,6 +29,9 @@ io.on("connection", (socket: Socket) => {
   console.log("connected");
   socket.on("message", (message: Message) => {
     socket.broadcast.emit("message", message);
+  });
+  socket.on("private message", (anotherSocketId: string, message: Message) => {
+    socket.to(anotherSocketId).emit("private message", socket.id, message);
   });
   socket.on("typing", (username: string) => {
     socket.broadcast.emit("typing", username);
