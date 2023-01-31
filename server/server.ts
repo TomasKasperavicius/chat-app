@@ -12,7 +12,8 @@ const server = app.listen(process.env.SERVER_PORT, () => {
     );
   }
 });
-import { Socket, Server } from "socket.io";
+import { Socket, Server, RemoteSocket } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
 const io = new Server(server, {
   cors: {
@@ -25,9 +26,28 @@ interface Message {
   timestamp: number;
   content: string | undefined;
 }
-io.on("connection", (socket: Socket) => {
+export interface UserInfo {
+  username: string;
+  avatar: string;
+  socketID: string;
+}
+io.on("connection", async (socket: Socket) => {
   console.log("connected");
+  const allSockets: RemoteSocket<DefaultEventsMap, any>[] =
+    await io.sockets.fetchSockets();
+  var connectedUsers: UserInfo[] = [];
+  allSockets.forEach((socket) => {
+    connectedUsers.push({
+      avatar: socket.handshake.query.avatar as string,
+      username: socket.handshake.query.username as string,
+      socketID: socket.id,
+    });
+  });
+  io.sockets.emit("update connected users", connectedUsers);
   socket.on("message", (message: Message) => {
+    socket.broadcast.emit("message", message);
+  });
+  socket.on("update connected users", (message: Message) => {
     socket.broadcast.emit("message", message);
   });
   socket.on("private message", (anotherSocketId: string, message: Message) => {
