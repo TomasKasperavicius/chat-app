@@ -16,7 +16,14 @@ import {
 import { useTheme as useNextTheme } from "next-themes";
 import AddIcon from "@mui/icons-material/Add";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import React, { useState, useRef, Dispatch, SetStateAction } from "react";
+import React, {
+  useState,
+  useRef,
+  Dispatch,
+  SetStateAction,
+  FunctionComponent,
+  useEffect,
+} from "react";
 import { Socket } from "socket.io-client";
 import Nav from "@/components/Nav";
 import LandingPage from "@/components/LandingPage";
@@ -47,22 +54,30 @@ export interface SocketWithUser extends Socket {
   };
 }
 // TODO: change login with nextUI modal component or setup google/github login
-var socket: SocketWithUser | undefined = undefined;
+// var socket: SocketWithUser | undefined = undefined;
 function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
+  const [socket, setSocket] = useState<SocketWithUser | undefined>(undefined)
   const [friends, setFriends] = useState<UserDefinition[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [connectedUsers, setConnectedUsers] = useState<UserDefinition[]>([]);
   const [toggleSideBar, setToggleSideBar] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
-
+  const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
+  useEffect(() => {
+    console.log(socket)
+  }, [socket])
   
-  const addFriends = (user: UserDefinition) => {
-    setFriends([...friends, user]);
-    setConnectedUsers((u) => {
-      return u.filter((obj) => obj.socketID !== user.socketID);
-    });
+  const sendFriendRequest = (socketID: string | undefined) => {
+    if (!socketID) return;
+    console.log("here");
+    console.log(socketID)
+    console.log(socket);
+    socket?.emit("send friend request", socketID, user);
+    // setConnectedUsers((u) => {
+    //   return u.filter((obj) => obj.socketID !== socketID);
+    // });
   };
   return (
     <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
@@ -71,12 +86,14 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
           <Row fluid>
             <Col>
               <Nav
+                notifications={notifications}
                 type={type}
                 isDark={isDark}
                 setTheme={setTheme}
                 user={user}
                 setToggleSidebar={setToggleSideBar}
                 setCurrentUser={setCurrentUser}
+                setNotifications={setNotifications}
               />
             </Col>
           </Row>
@@ -91,7 +108,10 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
                   borderRight: "solid",
                 }}
               >
-                <div onClick={()=> setToggleSideBar(false)} className="flex justify-end m-2">
+                <div
+                  onClick={() => setToggleSideBar(false)}
+                  className="flex justify-end m-2"
+                >
                   <HighlightOffIcon className="h-full w-full hover:opacity-70 cursor-pointer" />
                 </div>
                 <div className="m-2">
@@ -126,7 +146,7 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
                         <Card.Footer>
                           <Button
                             className="hover:opacity-70"
-                            onClick={() => addFriends(user)}
+                            onClick={() => sendFriendRequest(user?.socketID)}
                             iconRight={<AddIcon />}
                           >
                             Add to friends
@@ -146,18 +166,18 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
         </>
       ) : (
         <LandingPage
+        setSocket={setSocket}
           setCurrentUser={setCurrentUser}
           user={user}
           setConnectedUsers={setConnectedUsers}
           setMessages={setMessages}
           setTypingUsers={setTypingUsers}
+          setNotifications={setNotifications}
           socket={socket}
           DOMAIN_NAME={DOMAIN_NAME}
           SERVER_PORT={SERVER_PORT}
         />
       )}
-
-      
     </Container>
   );
 }

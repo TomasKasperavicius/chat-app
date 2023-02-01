@@ -47,6 +47,10 @@ io.on("connection", async (socket: Socket) => {
   socket.on("message", (message: Message) => {
     socket.broadcast.emit("message", message);
   });
+  socket.on("send friend request", (receiverSocketID: string, sender: UserInfo) => {
+    console.log(receiverSocketID);
+    socket.to(receiverSocketID).emit("received friend request", sender);
+  });
   socket.on("update connected users", (message: Message) => {
     socket.broadcast.emit("message", message);
   });

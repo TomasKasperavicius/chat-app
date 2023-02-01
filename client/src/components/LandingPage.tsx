@@ -2,14 +2,17 @@ import { Message, SocketWithUser, UserDefinition } from "@/pages";
 import { Row, Col, Button, Input, User } from "@nextui-org/react";
 import { FunctionComponent, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import FriendRequest from "./FriendRequest";
 
 interface LandingPageProps {
   user: UserDefinition;
-  setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   socket: SocketWithUser | undefined;
+  setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
+  setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setTypingUsers: React.Dispatch<React.SetStateAction<string[]>>;
   setConnectedUsers: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+  setNotifications: React.Dispatch<React.SetStateAction<FunctionComponent<{}>[]>>;
   DOMAIN_NAME: string;
   SERVER_PORT: number;
 }
@@ -23,10 +26,12 @@ type Colours =
   | "gradient"
   | undefined;
 
-const LandingPage: FunctionComponent<LandingPageProps> = ({
+const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   user,
   setCurrentUser,
+  setSocket,
   setConnectedUsers,
+  setNotifications,
   setMessages,
   setTypingUsers,
   socket,
@@ -55,6 +60,11 @@ const LandingPage: FunctionComponent<LandingPageProps> = ({
           return [...messages, message];
         });
       });
+      newSocket.on("received friend request", (_ : unknown) => {
+        setNotifications((not: any)=>{ 
+          return [...not, <FriendRequest sender={user}/>]
+        });
+      });
       newSocket.on("room created", (username: string) => {
         setTypingUsers((typingUsers) => {
           return [...typingUsers, username];
@@ -75,16 +85,19 @@ const LandingPage: FunctionComponent<LandingPageProps> = ({
         (connectedUsers: UserDefinition[]) => {
           setConnectedUsers((users) => {
             users = connectedUsers.filter((u) => {
-              if (u.socketID !== socket?.id) return true;
+              if (u.socketID !== newSocket!.id) return true;
               return false;
             });
             return users;
           });
         }
       );
-      socket = newSocket;
     }
-    socket!.user = { avatar: user.avatar, username: username };
+    newSocket!.user = { avatar: user.avatar, username: username };
+    setSocket((s)=>{
+      s = Object.assign({},newSocket)
+      return s;
+    })
     userInput!.current!.value = "";
   };
   return (
