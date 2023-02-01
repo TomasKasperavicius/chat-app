@@ -85,6 +85,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
         (connectedUsers: UserDefinition[]) => {
           setConnectedUsers((users) => {
             users = connectedUsers.filter((u) => {
+              u.receivedFriendRequest = false;
               if (u.socketID !== newSocket!.id) return true;
               return false;
             });
@@ -92,12 +93,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           });
         }
       );
+      newSocket!.user = { avatar: user.avatar, username: username };
+      setSocket(newSocket);
     }
-    newSocket!.user = { avatar: user.avatar, username: username };
-    setSocket((s)=>{
-      s = Object.assign({},newSocket)
-      return s;
-    })
     userInput!.current!.value = "";
   };
   return (

@@ -12,6 +12,7 @@ import {
   Col,
   Card,
   Grid,
+  Loading,
 } from "@nextui-org/react";
 import { useTheme as useNextTheme } from "next-themes";
 import AddIcon from "@mui/icons-material/Add";
@@ -46,6 +47,7 @@ export interface UserDefinition {
   username: string;
   socketID?: string;
   loggedIn?: boolean;
+  receivedFriendRequest?: boolean;
 }
 export interface SocketWithUser extends Socket {
   user?: {
@@ -56,7 +58,7 @@ export interface SocketWithUser extends Socket {
 // TODO: change login with nextUI modal component or setup google/github login
 // var socket: SocketWithUser | undefined = undefined;
 function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
-  const [socket, setSocket] = useState<SocketWithUser | undefined>(undefined)
+  const [socket, setSocket] = useState<SocketWithUser | undefined>(undefined);
   const [friends, setFriends] = useState<UserDefinition[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [connectedUsers, setConnectedUsers] = useState<UserDefinition[]>([]);
@@ -65,15 +67,13 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
   const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
-  useEffect(() => {
-    console.log(socket)
-  }, [socket])
-  
+
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
-    console.log("here");
-    console.log(socketID)
-    console.log(socket);
+    setConnectedUsers((arr) => {
+      arr.find((u)=> u.socketID === socketID)!.receivedFriendRequest = true;
+      return [...arr];
+    })
     socket?.emit("send friend request", socketID, user);
     // setConnectedUsers((u) => {
     //   return u.filter((obj) => obj.socketID !== socketID);
@@ -144,13 +144,22 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
                           <User name={user.username} src={user.avatar} />
                         </Card.Header>
                         <Card.Footer>
-                          <Button
-                            className="hover:opacity-70"
-                            onClick={() => sendFriendRequest(user?.socketID)}
-                            iconRight={<AddIcon />}
-                          >
-                            Add to friends
-                          </Button>
+                          { !user.receivedFriendRequest ? (
+                            <Button
+                              className="hover:opacity-70"
+                              onClick={() => sendFriendRequest(user?.socketID)}
+                              iconRight={<AddIcon />}
+                            >
+                              Add to friends
+                            </Button>
+                          ) : (
+                            <Button
+                              css={{ width: "100%" }}
+                              iconRight={<Loading color="white" size="sm" />}
+                            >
+                              Waiting for response...
+                            </Button>
+                          )}
                         </Card.Footer>
                       </Card>
                     );
@@ -166,7 +175,7 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
         </>
       ) : (
         <LandingPage
-        setSocket={setSocket}
+          setSocket={setSocket}
           setCurrentUser={setCurrentUser}
           user={user}
           setConnectedUsers={setConnectedUsers}
