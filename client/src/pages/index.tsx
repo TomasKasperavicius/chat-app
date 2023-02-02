@@ -28,6 +28,7 @@ import React, {
 import { Socket } from "socket.io-client";
 import Nav from "@/components/Nav";
 import LandingPage from "@/components/LandingPage";
+import Notifications from "@/components/Notifications";
 
 export interface Message {
   sender: UserDefinition | undefined;
@@ -67,13 +68,17 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
   const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
-
+  const [toggleNotifications, setToggleNotifications] =
+    useState<boolean>(false);
+  const [seenNewNotifications, setSeenNewNotifications] =
+    useState<boolean>(true);
   const sendFriendRequest = (socketID: string | undefined) => {
+    
     if (!socketID) return;
     setConnectedUsers((arr) => {
-      arr.find((u)=> u.socketID === socketID)!.receivedFriendRequest = true;
+      arr.find((u) => u.socketID === socketID)!.receivedFriendRequest = true;
       return [...arr];
-    })
+    });
     socket?.emit("send friend request", socketID, user);
     // setConnectedUsers((u) => {
     //   return u.filter((obj) => obj.socketID !== socketID);
@@ -86,6 +91,9 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
           <Row fluid>
             <Col>
               <Nav
+                setSeenNewNotifications={setSeenNewNotifications}
+                setToggleNotifications={setToggleNotifications}
+                seenNewNotifications={seenNewNotifications}
                 notifications={notifications}
                 type={type}
                 isDark={isDark}
@@ -132,49 +140,56 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
               </Col>
             )}
             <Col>
-              <div className=" p-5">
-                {connectedUsers.length > 0 ? (
-                  connectedUsers.map((user, key) => {
-                    return (
-                      <Card
-                        key={key}
-                        css={{ p: "$6", mw: "300px", margin: "20px" }}
-                      >
-                        <Card.Header>
-                          <User name={user.username} src={user.avatar} />
-                        </Card.Header>
-                        <Card.Footer>
-                          { !user.receivedFriendRequest ? (
-                            <Button
-                              className="hover:opacity-70"
-                              onClick={() => sendFriendRequest(user?.socketID)}
-                              iconRight={<AddIcon />}
-                            >
-                              Add to friends
-                            </Button>
-                          ) : (
-                            <Button
-                              css={{ width: "100%" }}
-                              iconRight={<Loading color="white" size="sm" />}
-                            >
-                              Waiting for response...
-                            </Button>
-                          )}
-                        </Card.Footer>
-                      </Card>
-                    );
-                  })
-                ) : (
-                  <div className="h-screen flex justify-center items-center">
-                    No new people online...
-                  </div>
-                )}
-              </div>
+              {!toggleNotifications ? (
+                <div className=" p-5">
+                  {connectedUsers.length > 0 ? (
+                    connectedUsers.map((u, key) => {
+                      return (
+                        <Card
+                          key={key}
+                          css={{ p: "$6", mw: "300px", margin: "20px" }}
+                        >
+                          <Card.Header>
+                            <User name={u.username} src={u.avatar} />
+                          </Card.Header>
+                          <Card.Footer>
+                            {!u.receivedFriendRequest ? (
+                              <Button
+                                className="hover:opacity-70"
+                                onClick={() =>
+                                  sendFriendRequest(u?.socketID)
+                                }
+                                iconRight={<AddIcon />}
+                              >
+                                Add to friends
+                              </Button>
+                            ) : (
+                              <Button
+                                css={{ width: "100%" }}
+                                iconRight={<Loading color="white" size="sm" />}
+                              >
+                                Waiting for response...
+                              </Button>
+                            )}
+                          </Card.Footer>
+                        </Card>
+                      );
+                    })
+                  ) : (
+                    <div className="h-screen flex justify-center items-center">
+                      No new people online...
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Notifications notifications={notifications} />
+              )}
             </Col>
           </Row>
         </>
       ) : (
         <LandingPage
+          setSeenNewNotifications={setSeenNewNotifications}
           setSocket={setSocket}
           setCurrentUser={setCurrentUser}
           user={user}

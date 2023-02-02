@@ -12,7 +12,10 @@ interface LandingPageProps {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setTypingUsers: React.Dispatch<React.SetStateAction<string[]>>;
   setConnectedUsers: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
-  setNotifications: React.Dispatch<React.SetStateAction<FunctionComponent<{}>[]>>;
+  setNotifications: React.Dispatch<
+    React.SetStateAction<FunctionComponent<{}>[]>
+  >;
+  setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   DOMAIN_NAME: string;
   SERVER_PORT: number;
 }
@@ -34,6 +37,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   setNotifications,
   setMessages,
   setTypingUsers,
+  setSeenNewNotifications,
   socket,
   DOMAIN_NAME,
   SERVER_PORT,
@@ -60,9 +64,22 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           return [...messages, message];
         });
       });
-      newSocket.on("received friend request", (_ : unknown) => {
-        setNotifications((not: any)=>{ 
-          return [...not, <FriendRequest sender={user}/>]
+      newSocket.on("received friend request", (sender: UserDefinition, senderSocketID:string) => {
+        setSeenNewNotifications(false);
+        setConnectedUsers((users) => {
+          users.find(
+            (u) => u.socketID === senderSocketID
+          )!.receivedFriendRequest = true;
+          return [...users];
+        });
+        setNotifications((not: any) => {
+          return [...not, <FriendRequest setNotifications={setNotifications} socket={newSocket} sender={sender} senderSocketID={senderSocketID}/>];
+        });
+      });
+      newSocket.on("friend request canceled", (sender: UserDefinition, senderSocketID:string) => {
+        setConnectedUsers((users) => {
+          users.find(u => u.socketID === senderSocketID)!.receivedFriendRequest = false;
+          return [...users];
         });
       });
       newSocket.on("room created", (username: string) => {
@@ -84,15 +101,23 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
         "update connected users",
         (connectedUsers: UserDefinition[]) => {
           setConnectedUsers((users) => {
-            users = connectedUsers.filter((u) => {
-              u.receivedFriendRequest = false;
-              if (u.socketID !== newSocket!.id) return true;
+            const newUsers = connectedUsers.filter((u) => {
+              if (
+                u.socketID !== newSocket!.id &&
+                users.find((us) => u.socketID === us.socketID) === undefined
+              )
+                return true;
               return false;
             });
-            return users;
+            return [...users, ...newUsers];
           });
         }
       );
+      newSocket.on("user disconnect", (sockedID: string) => {
+        setConnectedUsers((users) => {
+          return [...users.filter((u) => u.socketID !== sockedID)];
+        });
+      });
       newSocket!.user = { avatar: user.avatar, username: username };
       setSocket(newSocket);
     }
@@ -141,7 +166,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     return color;
                   });
                   setCurrentUser((user) => {
-                    return { username: user.username, avatar: "/man.png" };
+                    return {...user,
+                      avatar: "/man.png"
+                    };
                   });
                 }}
               />
@@ -159,7 +186,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     return color;
                   });
                   setCurrentUser((user: UserDefinition) => {
-                    return { username: user.username, avatar: "/woman.png" };
+                    return {...user, avatar: "/woman.png" };
                   });
                 }}
               />

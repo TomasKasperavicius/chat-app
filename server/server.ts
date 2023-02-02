@@ -31,8 +31,7 @@ export interface UserInfo {
   avatar: string;
   socketID: string;
 }
-io.on("connection", async (socket: Socket) => {
-  console.log("connected");
+const fetchConnectedUsers = async () => {
   const allSockets: RemoteSocket<DefaultEventsMap, any>[] =
     await io.sockets.fetchSockets();
   var connectedUsers: UserInfo[] = [];
@@ -43,13 +42,30 @@ io.on("connection", async (socket: Socket) => {
       socketID: socket.id,
     });
   });
+  return connectedUsers;
+};
+io.on("connection", async (socket: Socket) => {
+  console.log("connected");
+  var connectedUsers = await fetchConnectedUsers();
   io.sockets.emit("update connected users", connectedUsers);
+  socket.on("disconnect", (_: unknown) => {
+    socket.broadcast.emit("user disconnect", socket.id);
+  });
   socket.on("message", (message: Message) => {
     socket.broadcast.emit("message", message);
   });
-  socket.on("send friend request", (receiverSocketID: string, sender: UserInfo) => {
-    socket.to(receiverSocketID).emit("received friend request", sender);
-  });
+  socket.on(
+    "send friend request",
+    (receiverSocketID: string, sender: UserInfo) => {
+      socket.to(receiverSocketID).emit("received friend request", sender,socket.id);
+    }
+  );
+  socket.on(
+    "cancel friend request",
+    (receiverSocketID: string, sender: UserInfo) => {
+      socket.to(receiverSocketID).emit("friend request canceled", sender,socket.id);
+    }
+  );
   socket.on("update connected users", (message: Message) => {
     socket.broadcast.emit("message", message);
   });

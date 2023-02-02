@@ -14,26 +14,36 @@ interface NavProps {
   user: UserDefinition | undefined;
   isDark: boolean | undefined;
   notifications: React.FunctionComponent<{}>[];
+  seenNewNotifications: boolean;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setTheme: (theme: string) => void;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setNotifications: React.Dispatch<
     React.SetStateAction<React.FunctionComponent<{}>[]>
   >;
+  setToggleNotifications: React.Dispatch<React.SetStateAction<boolean>>;
+  setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
 }
 import { Logo } from "../pages/Logo";
 
 const Nav: FunctionComponent<NavProps> = ({
   type,
   isDark,
-  setTheme,
   user,
+  notifications,
+  seenNewNotifications,
+  setTheme,
   setCurrentUser,
   setToggleSidebar,
-  notifications,
   setNotifications,
-}) => {
-  const [activeLink, setActiveLink] = useState<boolean | undefined>(undefined);
+  setSeenNewNotifications,
+  setToggleNotifications,
+}: NavProps) => {
+  const [activeLink, setActiveLink] = useState<boolean[] | undefined[]>([
+    undefined,
+    undefined,
+    undefined,
+  ]);
   const collapseItems = [
     "Friends",
     "Chats",
@@ -42,7 +52,6 @@ const Nav: FunctionComponent<NavProps> = ({
     "Login",
     "Sign Up",
   ];
-  const [toggleNotifications, setToggleNotifications] = useState<boolean>(false);
   return (
     <Navbar shouldHideOnScroll isBordered={isDark} variant="sticky">
       <Navbar.Brand>
@@ -56,20 +65,33 @@ const Nav: FunctionComponent<NavProps> = ({
         <Navbar.Link
           id="1-link"
           href="#"
-          isActive={activeLink === undefined ? undefined : activeLink}
+          isActive={activeLink[0]}
           onClick={() => {
-            setActiveLink(true);
-            setToggleSidebar(true);
+            setActiveLink((arr: any) => {
+              arr[0] = true;
+              arr[1] = undefined;
+              arr[2] = undefined;
+              return [...arr];
+            });
+            setToggleSidebar((e) => {
+              const b = !e;
+              return b;
+            });
           }}
         >
           Friends
         </Navbar.Link>
         <Navbar.Link
           id="2-link"
-          isActive={activeLink === undefined ? undefined : !activeLink}
+          isActive={activeLink[1]}
           href="#"
           onClick={() => {
-            setActiveLink(false);
+            setActiveLink((arr: any) => {
+              arr[0] = undefined;
+              arr[1] = true;
+              arr[2] = undefined;
+              return [...arr];
+            });
           }}
         >
           Chats
@@ -108,9 +130,9 @@ const Nav: FunctionComponent<NavProps> = ({
                   pointer
                   css={{ position: "relative", zIndex: 0 }}
                 />
-                {notifications.length > 0 ? (
-                  <span className="absolute top-0 right-24 rounded-full w-5 h-5 bg-red-600 text-center flex items-center justify-center">
-                    1
+                {!seenNewNotifications ? (
+                  <span className="absolute top-0 rounded-full w-5 h-5 bg-red-600 text-center flex items-center justify-center">
+                    {notifications.length}
                   </span>
                 ) : (
                   <span></span>
@@ -124,11 +146,17 @@ const Nav: FunctionComponent<NavProps> = ({
               <Text color="inherit">{user?.username}</Text>
             </Dropdown.Item>
             <Dropdown.Item key="Notifications" withDivider>
-              <div className="flex items-center relative">
+              <div
+                className="flex items-center relative"
+                onClick={() => {
+                  setSeenNewNotifications(true);
+                  setToggleNotifications(true);
+                }}
+              >
                 Notifications
-                {notifications.length > 0 ? (
+                {!seenNewNotifications ? (
                   <span className="absolute top-0 right-24 rounded-full w-5 h-5 bg-red-600 text-center flex items-center justify-center">
-                    1
+                    {notifications.length}
                   </span>
                 ) : (
                   <span></span>
