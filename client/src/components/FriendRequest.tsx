@@ -9,6 +9,9 @@ interface FriendRequestProps {
   setNotifications: React.Dispatch<
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
+  setConnectedUsers: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+  setFriends:React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+
 }
 
 const FriendRequest: FunctionComponent<FriendRequestProps> = ({
@@ -16,6 +19,8 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
   socket,
   senderSocketID,
   setNotifications,
+  setConnectedUsers,
+  setFriends,
 }: FriendRequestProps) => {
   return (
     <Card className="flex items-center">
@@ -27,7 +32,27 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
       </Card.Header>
       <Card.Body>
         <div className="flex">
-          <Button size="sm" css={{ margin: 10 }} className="hover:opacity-70">
+          <Button
+            size="sm"
+            css={{ margin: 10 }}
+            className="hover:opacity-70"
+            onClick={() => {
+              setNotifications((not: any) => {
+                return [
+                  ...not.filter(
+                    (n: any) => n.props.senderSocketID !== senderSocketID
+                  ),
+                ];
+              });
+              setFriends((friends)=>{
+                return [...friends,{...sender, socketID:senderSocketID}];
+              });
+              setConnectedUsers((users) => {
+                return [...users.filter(u => u.socketID !== senderSocketID)];
+              });
+              socket.emit("accept friend request", socket.user,senderSocketID);
+            }}
+          >
             Confirm
           </Button>
           <Button
@@ -35,14 +60,14 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
             css={{ margin: 10 }}
             className="hover:opacity-70"
             onClick={() => {
-                setNotifications((not: any) => {
-                    return [...not.filter((n: any) => n.props.senderSocketID !== senderSocketID)];
-                  });
-              socket.emit(
-                "cancel friend request",
-                senderSocketID,
-                socket.user
-              );
+              setNotifications((not: any) => {
+                return [
+                  ...not.filter(
+                    (n: any) => n.props.senderSocketID !== senderSocketID
+                  ),
+                ];
+              });
+              socket.emit("cancel friend request", senderSocketID);
             }}
           >
             Remove

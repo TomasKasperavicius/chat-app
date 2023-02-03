@@ -73,7 +73,6 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
   const [seenNewNotifications, setSeenNewNotifications] =
     useState<boolean>(true);
   const sendFriendRequest = (socketID: string | undefined) => {
-    
     if (!socketID) return;
     setConnectedUsers((arr) => {
       arr.find((u) => u.socketID === socketID)!.receivedFriendRequest = true;
@@ -191,6 +190,8 @@ function Home({ DOMAIN_NAME, SERVER_PORT, user, setCurrentUser }: HomeProps) {
         <LandingPage
           setSeenNewNotifications={setSeenNewNotifications}
           setSocket={setSocket}
+          setFriends={setFriends}
+          friends={friends}
           setCurrentUser={setCurrentUser}
           user={user}
           setConnectedUsers={setConnectedUsers}

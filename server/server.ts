@@ -62,8 +62,14 @@ io.on("connection", async (socket: Socket) => {
   );
   socket.on(
     "cancel friend request",
-    (receiverSocketID: string, sender: UserInfo) => {
-      socket.to(receiverSocketID).emit("friend request canceled", sender,socket.id);
+    (receiverSocketID: string) => {
+      socket.to(receiverSocketID).emit("friend request canceled",socket.id);
+    }
+  );
+  socket.on(
+    "accept friend request",
+    (sender: UserInfo,receiverSocketID: string) => {
+      socket.to(receiverSocketID).emit("friend request accepted",sender,socket.id);
     }
   );
   socket.on("update connected users", (message: Message) => {

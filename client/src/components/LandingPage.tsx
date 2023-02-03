@@ -7,6 +7,8 @@ import FriendRequest from "./FriendRequest";
 interface LandingPageProps {
   user: UserDefinition;
   socket: SocketWithUser | undefined;
+  friends: UserDefinition[];
+  setFriends:React.Dispatch<React.SetStateAction<UserDefinition[]>>;
   setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -31,8 +33,10 @@ type Colours =
 
 const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   user,
+  friends,
   setCurrentUser,
   setSocket,
+  setFriends,
   setConnectedUsers,
   setNotifications,
   setMessages,
@@ -73,12 +77,21 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           return [...users];
         });
         setNotifications((not: any) => {
-          return [...not, <FriendRequest setNotifications={setNotifications} socket={newSocket} sender={sender} senderSocketID={senderSocketID}/>];
+          return [...not, <FriendRequest setConnectedUsers={setConnectedUsers} setFriends={setFriends} setNotifications={setNotifications} socket={newSocket} sender={sender} senderSocketID={senderSocketID}/>];
         });
       });
-      newSocket.on("friend request canceled", (sender: UserDefinition, senderSocketID:string) => {
+      newSocket.on("friend request canceled", (senderSocketID:string) => {
         setConnectedUsers((users) => {
           users.find(u => u.socketID === senderSocketID)!.receivedFriendRequest = false;
+          return [...users];
+        });
+      });
+      newSocket.on("friend request accepted", (sender: UserDefinition,senderSocketID:string) => {
+        setFriends((friends)=>{
+          return [...friends,{...sender, socketID:senderSocketID}];
+        });
+        setConnectedUsers((users) => {
+          users.find(u => u.socketID !== senderSocketID);
           return [...users];
         });
       });
@@ -105,6 +118,8 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
               if (
                 u.socketID !== newSocket!.id &&
                 users.find((us) => u.socketID === us.socketID) === undefined
+                &&
+                friends.find(f => f.socketID === u.socketID) === undefined
               )
                 return true;
               return false;
