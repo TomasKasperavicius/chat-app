@@ -7,16 +7,15 @@ import {
   Switch,
   Text,
   User,
+  useTheme,
 } from "@nextui-org/react";
+import { useTheme as useNextTheme } from "next-themes";
 import { FunctionComponent, useState } from "react";
 interface NavProps {
-  type: string;
   user: UserDefinition | undefined;
-  isDark: boolean | undefined;
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
-  setTheme: (theme: string) => void;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setNotifications: React.Dispatch<
     React.SetStateAction<React.FunctionComponent<{}>[]>
@@ -27,12 +26,9 @@ interface NavProps {
 import { Logo } from "../pages/Logo";
 
 const Nav: FunctionComponent<NavProps> = ({
-  type,
-  isDark,
   user,
   notifications,
   seenNewNotifications,
-  setTheme,
   setCurrentUser,
   setToggleSidebar,
   setNotifications,
@@ -52,6 +48,8 @@ const Nav: FunctionComponent<NavProps> = ({
     "Login",
     "Sign Up",
   ];
+  const { setTheme } = useNextTheme();
+  const { isDark, type } = useTheme();
   return (
     <Navbar shouldHideOnScroll isBordered={isDark} variant="sticky">
       <Navbar.Brand>
@@ -63,7 +61,8 @@ const Nav: FunctionComponent<NavProps> = ({
       </Navbar.Brand>
       <Navbar.Content hideIn="xs" variant="underline">
         <Navbar.Link
-          id="1-link"
+          key="friends-link"
+          id="friends-link"
           href="#"
           isActive={activeLink[0]}
           onClick={() => {
@@ -82,7 +81,8 @@ const Nav: FunctionComponent<NavProps> = ({
           Friends
         </Navbar.Link>
         <Navbar.Link
-          id="2-link"
+        key="chats-link"
+          id="chats-link"
           isActive={activeLink[1]}
           href="#"
           onClick={() => {
@@ -130,7 +130,7 @@ const Nav: FunctionComponent<NavProps> = ({
                   pointer
                   css={{ position: "relative", zIndex: 0 }}
                 />
-                {!seenNewNotifications ? (
+                {!seenNewNotifications && notifications.length > 0 ? (
                   <span className="absolute top-0 rounded-full w-5 h-5 bg-red-600 text-center flex items-center justify-center">
                     {notifications.length}
                   </span>

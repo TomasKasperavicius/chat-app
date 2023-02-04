@@ -1,5 +1,6 @@
 import { Message, SocketWithUser, UserDefinition } from "@/pages";
 import { Row, Col, Button, Input, User } from "@nextui-org/react";
+import { useRouter } from "next/router";
 import { FunctionComponent, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import FriendRequest from "./FriendRequest";
@@ -8,7 +9,7 @@ interface LandingPageProps {
   user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
-  setFriends:React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+  setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
   setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -48,6 +49,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
 }: LandingPageProps) => {
   const [colors, setColors] = useState<Colours[]>(["default", "default"]);
   const userInput = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
   const setUser = () => {
     const username = userInput?.current?.value ?? "";
     if (username === "" || user?.avatar === "") return;
@@ -68,33 +70,50 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           return [...messages, message];
         });
       });
-      newSocket.on("received friend request", (sender: UserDefinition, senderSocketID:string) => {
-        setSeenNewNotifications(false);
+      newSocket.on(
+        "received friend request",
+        (sender: UserDefinition, senderSocketID: string) => {
+          setSeenNewNotifications(false);
+          setConnectedUsers((users) => {
+            users.find(
+              (u) => u.socketID === senderSocketID
+            )!.receivedFriendRequest = true;
+            return [...users];
+          });
+          setNotifications((not: any) => {
+            return [
+              ...not,
+              <FriendRequest
+                setConnectedUsers={setConnectedUsers}
+                setFriends={setFriends}
+                setNotifications={setNotifications}
+                socket={newSocket}
+                sender={sender}
+                senderSocketID={senderSocketID}
+              />,
+            ];
+          });
+        }
+      );
+      newSocket.on("friend request canceled", (senderSocketID: string) => {
         setConnectedUsers((users) => {
           users.find(
             (u) => u.socketID === senderSocketID
-          )!.receivedFriendRequest = true;
-          return [...users];
-        });
-        setNotifications((not: any) => {
-          return [...not, <FriendRequest setConnectedUsers={setConnectedUsers} setFriends={setFriends} setNotifications={setNotifications} socket={newSocket} sender={sender} senderSocketID={senderSocketID}/>];
-        });
-      });
-      newSocket.on("friend request canceled", (senderSocketID:string) => {
-        setConnectedUsers((users) => {
-          users.find(u => u.socketID === senderSocketID)!.receivedFriendRequest = false;
+          )!.receivedFriendRequest = false;
           return [...users];
         });
       });
-      newSocket.on("friend request accepted", (sender: UserDefinition,senderSocketID:string) => {
-        setFriends((friends)=>{
-          return [...friends,{...sender, socketID:senderSocketID}];
-        });
-        setConnectedUsers((users) => {
-          users.find(u => u.socketID !== senderSocketID);
-          return [...users];
-        });
-      });
+      newSocket.on(
+        "friend request accepted",
+        (sender: UserDefinition, senderSocketID: string) => {
+          setFriends((friends) => {
+            return [...friends, { ...sender, socketID: senderSocketID }];
+          });
+          setConnectedUsers((users) => {
+            return [...users.filter((u) => u.socketID !== senderSocketID)];
+          });
+        }
+      );
       newSocket.on("room created", (username: string) => {
         setTypingUsers((typingUsers) => {
           return [...typingUsers, username];
@@ -117,9 +136,8 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
             const newUsers = connectedUsers.filter((u) => {
               if (
                 u.socketID !== newSocket!.id &&
-                users.find((us) => u.socketID === us.socketID) === undefined
-                &&
-                friends.find(f => f.socketID === u.socketID) === undefined
+                users.find((us) => u.socketID === us.socketID) === undefined &&
+                friends.find((f) => f.socketID === u.socketID) === undefined
               )
                 return true;
               return false;
@@ -137,6 +155,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       setSocket(newSocket);
     }
     userInput!.current!.value = "";
+    router.push("/home");
   };
   return (
     <>
@@ -181,9 +200,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     return color;
                   });
                   setCurrentUser((user) => {
-                    return {...user,
-                      avatar: "/man.png"
-                    };
+                    return { ...user, avatar: "/man.png" };
                   });
                 }}
               />
@@ -201,13 +218,14 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     return color;
                   });
                   setCurrentUser((user: UserDefinition) => {
-                    return {...user, avatar: "/woman.png" };
+                    return { ...user, avatar: "/woman.png" };
                   });
                 }}
               />
             </div>
             <div className="flex  p-10">
               <Input
+                id="username-input"
                 width="w-1/2"
                 ref={userInput}
                 clearable

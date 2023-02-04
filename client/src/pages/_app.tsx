@@ -1,10 +1,15 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { NextUIProvider, createTheme } from "@nextui-org/react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import {
+  NextUIProvider,
+  createTheme,
+} from "@nextui-org/react";
+import {
+  ThemeProvider as NextThemesProvider,
+} from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { useState } from "react";
-import { UserDefinition } from ".";
+import { FunctionComponent, useState } from "react";
+import { Message, SocketWithUser, UserDefinition } from ".";
 
 const lightTheme = createTheme({
   type: "light",
@@ -22,9 +27,21 @@ export default function App({ Component, pageProps }: AppProps) {
     username: "",
     loggedIn: false,
   });
+  const [socket, setSocket] = useState<SocketWithUser | undefined>(undefined);
+  const [friends, setFriends] = useState<UserDefinition[]>([]);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [connectedUsers, setConnectedUsers] = useState<UserDefinition[]>([]);
+  const [toggleSideBar, setToggleSideBar] = useState<boolean>(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
+  const [toggleNotifications, setToggleNotifications] =
+    useState<boolean>(false);
+  const [seenNewNotifications, setSeenNewNotifications] =
+    useState<boolean>(true);
   return (
     <SessionProvider session={pageProps.session}>
       <NextThemesProvider
+
         defaultTheme="system"
         attribute="class"
         value={{
@@ -32,12 +49,29 @@ export default function App({ Component, pageProps }: AppProps) {
           dark: darkTheme.className,
         }}
       >
-        <NextUIProvider>
+        <NextUIProvider >
           <main className="w-full h-screen">
             <Component
               {...pageProps}
-              user={user}
+              connectedUsers={connectedUsers}
+              friends={friends}
+              notifications={notifications}
+              seenNewNotifications={seenNewNotifications}
+              setConnectedUsers={setConnectedUsers}
               setCurrentUser={setCurrentUser}
+              setFriends={setFriends}
+              setMessages={setMessages}
+              setNotifications={setNotifications}
+              setSeenNewNotifications={setSeenNewNotifications}
+              setSocket={setSocket}
+              setToggleNotifications={setToggleNotifications}
+              setToggleSidebar={setToggleSideBar}
+              setTypingUsers={setTypingUsers}
+              socket={socket}
+              toggleNotifications={toggleNotifications}
+              toggleSideBar={toggleSideBar}
+              typingUsers={typingUsers}
+              user={user}
             />
           </main>
         </NextUIProvider>
