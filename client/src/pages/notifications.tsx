@@ -1,25 +1,19 @@
 import Nav from "@/components/Nav";
 import {
-  Card,
+  Container,
   Row,
   Col,
   User,
+  Card,
   Button,
-  Container,
   Loading,
 } from "@nextui-org/react";
-import {
-  Dispatch,
-  FunctionComponent,
-  ReactNode,
-  SetStateAction,
-  useEffect,
-} from "react";
-import { Message, SocketWithUser, UserDefinition } from ".";
+import { Dispatch, FunctionComponent, ReactNode, SetStateAction } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { NextRouter, useRouter } from "next/router";
-interface HomeProps {
+import { Message, SocketWithUser, UserDefinition } from ".";
+
+interface NotificationsProps {
   user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
@@ -42,7 +36,7 @@ interface HomeProps {
   setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
 }
 
-const Home: FunctionComponent<HomeProps> = ({
+const Notifications: FunctionComponent<NotificationsProps> = ({
   user,
   connectedUsers,
   friends,
@@ -61,13 +55,7 @@ const Home: FunctionComponent<HomeProps> = ({
   toggleNotifications,
   toggleSideBar,
   typingUsers,
-}) => {
-  const router: NextRouter = useRouter();
-  useEffect(() => {
-    if (socket === undefined || !user.loggedIn) {
-      router.push("/");
-    }
-  }, []);
+}: NotificationsProps) => {
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr) => {
@@ -130,56 +118,15 @@ const Home: FunctionComponent<HomeProps> = ({
           </Col>
         )}
         <Col>
-          {!toggleNotifications ? (
-            <div className=" p-5">
-              {connectedUsers.length > 0 ? (
-                connectedUsers.map((u, key) => {
-                  return (
-                    <Card
-                      key={key}
-                      css={{ p: "$6", mw: "300px", margin: "20px" }}
-                    >
-                      <Card.Header>
-                        <User name={u.username} src={u.avatar} />
-                      </Card.Header>
-                      <Card.Footer>
-                        {!u.receivedFriendRequest ? (
-                          <Button
-                            className="hover:opacity-70"
-                            onClick={() => sendFriendRequest(u?.socketID)}
-                            iconRight={<AddIcon />}
-                          >
-                            Add to friends
-                          </Button>
-                        ) : (
-                          <Button
-                            css={{ width: "100%" }}
-                            iconRight={<Loading color="white" size="sm" />}
-                          >
-                            Waiting for response...
-                          </Button>
-                        )}
-                      </Card.Footer>
-                    </Card>
-                  );
-                })
-              ) : (
-                <div className="h-screen flex justify-center items-center">
-                  No new people online...
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center p-10 m-10">
-              {notifications.map((notification: unknown, key) => {
-                return <div key={key}>{notification as ReactNode}</div>;
-              })}
-            </div>
-          )}
+          <div className="flex items-center justify-center p-10 m-10">
+            {notifications.map((notification: unknown, key) => {
+              return <div key={key}>{notification as ReactNode}</div>;
+            })}
+          </div>
         </Col>
       </Row>
     </Container>
   );
 };
 
-export default Home;
+export default Notifications;

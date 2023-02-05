@@ -1,34 +1,13 @@
 import {
-  Button,
-  Link,
-  useTheme,
-  Text,
-  Input,
-  Spacer,
-  Textarea,
-  User,
   Container,
-  Row,
-  Col,
-  Card,
-  Grid,
-  Loading,
 } from "@nextui-org/react";
-import { useTheme as useNextTheme } from "next-themes";
-import AddIcon from "@mui/icons-material/Add";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import React, {
-  useState,
-  useRef,
   Dispatch,
   SetStateAction,
   FunctionComponent,
-  useEffect,
 } from "react";
 import { Socket } from "socket.io-client";
-import Nav from "@/components/Nav";
 import LandingPage from "@/components/LandingPage";
-import Notifications from "@/components/Notifications";
 
 export interface Message {
   sender: UserDefinition | undefined;

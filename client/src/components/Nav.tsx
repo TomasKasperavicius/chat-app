@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@nextui-org/react";
 import { useTheme as useNextTheme } from "next-themes";
+import { useRouter } from "next/router";
 import { FunctionComponent, useState } from "react";
 interface NavProps {
   user: UserDefinition | undefined;
@@ -50,6 +51,7 @@ const Nav: FunctionComponent<NavProps> = ({
   ];
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
+  const router = useRouter()
   return (
     <Navbar shouldHideOnScroll isBordered={isDark} variant="sticky">
       <Navbar.Brand>
@@ -72,10 +74,7 @@ const Nav: FunctionComponent<NavProps> = ({
               arr[2] = undefined;
               return [...arr];
             });
-            setToggleSidebar((e) => {
-              const b = !e;
-              return b;
-            });
+            setToggleSidebar(true);
           }}
         >
           Friends
@@ -150,7 +149,7 @@ const Nav: FunctionComponent<NavProps> = ({
                 className="flex items-center relative"
                 onClick={() => {
                   setSeenNewNotifications(true);
-                  setToggleNotifications(true);
+                  router.push("/notifications")
                 }}
               >
                 Notifications
