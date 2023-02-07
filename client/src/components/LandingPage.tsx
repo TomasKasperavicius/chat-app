@@ -132,18 +132,21 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       newSocket.on(
         "update connected users",
         (connectedUsers: UserDefinition[]) => {
+          setFriends(allFriends => {
           setConnectedUsers((users) => {
             const newUsers = connectedUsers.filter((u) => {
               if (
                 u.socketID !== newSocket!.id &&
                 users.find((us) => u.socketID === us.socketID) === undefined &&
-                friends.find((f) => f.socketID === u.socketID) === undefined
+                allFriends.find((f) => f.socketID === u.socketID) === undefined
               )
                 return true;
               return false;
             });
             return [...users, ...newUsers];
           });
+          return allFriends;
+        })
         }
       );
       newSocket.on("user disconnect", (sockedID: string) => {

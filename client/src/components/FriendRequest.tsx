@@ -1,5 +1,6 @@
 import { SocketWithUser, UserDefinition } from "@/pages";
 import { Button, Card, User } from "@nextui-org/react";
+import { useRouter } from "next/router";
 import { FunctionComponent } from "react";
 
 interface FriendRequestProps {
@@ -22,6 +23,7 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
   setConnectedUsers,
   setFriends,
 }: FriendRequestProps) => {
+  const router = useRouter()
   return (
     <Card className="flex items-center">
       <Card.Header className="flex items-center">
@@ -51,6 +53,7 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
                 return [...users.filter(u => u.socketID !== senderSocketID)];
               });
               socket.emit("accept friend request", socket.user,senderSocketID);
+              router.push("/home")
             }}
           >
             Confirm
@@ -68,6 +71,7 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
                 ];
               });
               socket.emit("cancel friend request", senderSocketID);
+              router.push("/home")
             }}
           >
             Remove

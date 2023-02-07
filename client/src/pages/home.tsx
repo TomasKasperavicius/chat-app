@@ -68,6 +68,7 @@ const Home: FunctionComponent<HomeProps> = ({
       router.push("/");
     }
   }, []);
+  
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr) => {

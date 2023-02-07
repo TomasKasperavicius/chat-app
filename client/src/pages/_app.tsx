@@ -39,6 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [seenNewNotifications, setSeenNewNotifications] =
     useState<boolean>(true);
   return (
+    //<SSRProvider></SSRProvider>
     <SessionProvider session={pageProps.session}>
       <NextThemesProvider
 
