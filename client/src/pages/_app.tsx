@@ -10,6 +10,8 @@ import {
 import { SessionProvider } from "next-auth/react";
 import { FunctionComponent, useState } from "react";
 import { Message, SocketWithUser, UserDefinition } from ".";
+import { ChatRoomDefinition } from "@/components/ChatRoom";
+import { UserProvider } from "@/Providers/UserContext";
 
 const lightTheme = createTheme({
   type: "light",
@@ -22,11 +24,7 @@ const darkTheme = createTheme({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [user, setCurrentUser] = useState<UserDefinition>({
-    avatar: "",
-    username: "",
-    loggedIn: false,
-  });
+  
   const [socket, setSocket] = useState<SocketWithUser | undefined>(undefined);
   const [friends, setFriends] = useState<UserDefinition[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
@@ -34,6 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [toggleSideBar, setToggleSideBar] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
+  const [chatRooms, setChatRooms] = useState<ChatRoomDefinition[]>([]);
   const [toggleNotifications, setToggleNotifications] =
     useState<boolean>(false);
   const [seenNewNotifications, setSeenNewNotifications] =
@@ -52,14 +51,16 @@ export default function App({ Component, pageProps }: AppProps) {
       >
         <NextUIProvider >
           <main className="w-full h-screen">
+            <UserProvider>
             <Component
               {...pageProps}
               connectedUsers={connectedUsers}
               friends={friends}
               notifications={notifications}
               seenNewNotifications={seenNewNotifications}
+              chatRooms={chatRooms}
+              setChatRooms={setChatRooms}
               setConnectedUsers={setConnectedUsers}
-              setCurrentUser={setCurrentUser}
               setFriends={setFriends}
               setMessages={setMessages}
               setNotifications={setNotifications}
@@ -72,8 +73,8 @@ export default function App({ Component, pageProps }: AppProps) {
               toggleNotifications={toggleNotifications}
               toggleSideBar={toggleSideBar}
               typingUsers={typingUsers}
-              user={user}
             />
+            </UserProvider>
           </main>
         </NextUIProvider>
       </NextThemesProvider>

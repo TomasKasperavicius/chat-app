@@ -11,13 +11,12 @@ import {
 } from "@nextui-org/react";
 import { useTheme as useNextTheme } from "next-themes";
 import { useRouter } from "next/router";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useState,useContext } from "react";
 interface NavProps {
-  user: UserDefinition | undefined;
+  toggleSideBar: boolean
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setNotifications: React.Dispatch<
     React.SetStateAction<React.FunctionComponent<{}>[]>
   >;
@@ -25,12 +24,13 @@ interface NavProps {
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
 }
 import { Logo } from "../pages/Logo";
+import { UserContext,UserContextType } from "@/Providers/UserContext";
+
 
 const Nav: FunctionComponent<NavProps> = ({
-  user,
   notifications,
+  toggleSideBar,
   seenNewNotifications,
-  setCurrentUser,
   setToggleSidebar,
   setNotifications,
   setSeenNewNotifications,
@@ -52,6 +52,7 @@ const Nav: FunctionComponent<NavProps> = ({
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
   const router = useRouter()
+  const {user,setCurrentUser} = useContext<UserContextType>(UserContext)
   return (
     <Navbar shouldHideOnScroll isBordered={isDark} variant="sticky">
       <Navbar.Brand>
@@ -74,7 +75,7 @@ const Nav: FunctionComponent<NavProps> = ({
               arr[2] = undefined;
               return [...arr];
             });
-            setToggleSidebar(true);
+            setToggleSidebar(!toggleSideBar);
           }}
         >
           Friends
@@ -168,7 +169,7 @@ const Nav: FunctionComponent<NavProps> = ({
                 className="hover:opacity-70"
                 color="default"
                 onClick={() => {
-                  setCurrentUser((u) => {
+                  setCurrentUser((u:UserDefinition) => {
                     u.loggedIn = false;
                     return { ...u };
                   });

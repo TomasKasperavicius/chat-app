@@ -1,21 +1,26 @@
 import Nav from "@/components/Nav";
 import {
-  Container,
   Row,
   Col,
   User,
-  Card,
-  Button,
-  Loading,
+  Container,
 } from "@nextui-org/react";
-import { Dispatch, FunctionComponent, ReactNode, SetStateAction, useContext } from "react";
-import AddIcon from "@mui/icons-material/Add";
+import {
+  Dispatch,
+  FunctionComponent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { Message, SocketWithUser, UserDefinition } from ".";
-import { useRouter } from "next/router";
-import { UserContextType,UserContext } from "@/Providers/UserContext";
-
-interface NotificationsProps {
+import { NextRouter, useRouter } from "next/router";
+import ChatRoom, { ChatRoomDefinition } from "@/components/ChatRoom";
+import { UserDefinition, SocketWithUser, Message } from "@/pages";
+import { GetServerSideProps, GetServerSidePropsContext, NextApiHandler, NextApiRequest, NextPageContext } from "next";
+import { Context } from "vm";
+import { NextAuthHeader } from "next-auth/core";
+import axios from "axios";
+interface ChatRoomHomeProps {
   user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
@@ -36,14 +41,18 @@ interface NotificationsProps {
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
+  DOMAIN_NAME:string,
+  SERVER_PORT:number,
 }
 
-const Notifications: FunctionComponent<NotificationsProps> = ({
+const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> =  ({
+  user,
   connectedUsers,
   friends,
   notifications,
   seenNewNotifications,
   setConnectedUsers,
+  setCurrentUser,
   setFriends,
   setMessages,
   setNotifications,
@@ -55,20 +64,21 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
   toggleNotifications,
   toggleSideBar,
   typingUsers,
-}: NotificationsProps) => {
-  const {user} = useContext<UserContextType>(UserContext)
-  const router = useRouter()
-  const sendFriendRequest = (socketID: string | undefined) => {
-    if (!socketID) return;
-    setConnectedUsers((arr) => {
-      arr.find((u) => u.socketID === socketID)!.receivedFriendRequest = true;
-      return [...arr];
-    });
-    socket?.emit("send friend request", socketID, user);
-    // setConnectedUsers((u) => {
-    //   return u.filter((obj) => obj.socketID !== socketID);
-    // });
-  };
+  DOMAIN_NAME,
+  SERVER_PORT,
+}) => {
+  const router: NextRouter = useRouter();
+  const [data, setData] = useState<ChatRoomDefinition>()
+  useEffect(() => {
+    const fetchData = async()=>{
+      const response = await axios.get(
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/chatRoom/${router.query.id}`
+      );
+      setData(response.data)
+    }
+    fetchData()
+  }, []);
+
   return (
     <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
       <Row fluid>
@@ -76,9 +86,9 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
           <Nav
             setSeenNewNotifications={setSeenNewNotifications}
             setToggleNotifications={setToggleNotifications}
+            toggleSideBar={toggleSideBar}
             seenNewNotifications={seenNewNotifications}
             notifications={notifications}
-            toggleSideBar={toggleSideBar}
             setToggleSidebar={setToggleSidebar}
             setNotifications={setNotifications}
           />
@@ -111,7 +121,6 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
                         name={friend.username}
                         src={friend.avatar}
                         pointer
-                        onClick={()=> router.push("/")}
                       />
                     </div>
                   );
@@ -119,16 +128,22 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
             </div>
           </Col>
         )}
-        <Col>
-          <div className="flex items-center justify-center p-10 m-10">
-            {notifications.map((notification: unknown, key) => {
-              return <div key={key}>{notification as ReactNode}</div>;
-            })}
-          </div>
-        </Col>
+        <ChatRoom
+          chatRoom={data}
+          socket={socket}
+          typingUsers={typingUsers}
+        />
       </Row>
     </Container>
   );
 };
 
-export default Notifications;
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      DOMAIN_NAME: process.env.DOMAIN_NAME,
+      SERVER_PORT: process.env.SERVER_PORT,
+    },
+  };
+};
+export default ChatRoomHome;

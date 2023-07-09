@@ -11,16 +11,18 @@ import {
 import {
   Dispatch,
   FunctionComponent,
+  Key,
   ReactNode,
   SetStateAction,
+  useContext,
   useEffect,
 } from "react";
-import { Message, SocketWithUser, UserDefinition } from ".";
+import { Message, SocketWithUser, UserDefinition } from "..";
 import AddIcon from "@mui/icons-material/Add";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { NextRouter, useRouter } from "next/router";
+import { UserContextType, UserContext } from "@/Providers/UserContext";
 interface HomeProps {
-  user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
   typingUsers: string[];
@@ -39,17 +41,14 @@ interface HomeProps {
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
 }
 
 const Home: FunctionComponent<HomeProps> = ({
-  user,
   connectedUsers,
   friends,
   notifications,
   seenNewNotifications,
   setConnectedUsers,
-  setCurrentUser,
   setFriends,
   setMessages,
   setNotifications,
@@ -63,6 +62,8 @@ const Home: FunctionComponent<HomeProps> = ({
   typingUsers,
 }) => {
   const router: NextRouter = useRouter();
+  const {user,setCurrentUser} = useContext<UserContextType>(UserContext)
+  console.log(user);
   useEffect(() => {
     if (socket === undefined || !user.loggedIn) {
       router.push("/");
@@ -71,8 +72,8 @@ const Home: FunctionComponent<HomeProps> = ({
   
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
-    setConnectedUsers((arr) => {
-      arr.find((u) => u.socketID === socketID)!.receivedFriendRequest = true;
+    setConnectedUsers((arr: UserDefinition[]) => {
+      arr.find((u: UserDefinition) => u.socketID === socketID)!.receivedFriendRequest = true;
       return [...arr];
     });
     socket?.emit("send friend request", socketID, user);
@@ -89,10 +90,9 @@ const Home: FunctionComponent<HomeProps> = ({
             setToggleNotifications={setToggleNotifications}
             seenNewNotifications={seenNewNotifications}
             notifications={notifications}
-            user={user}
             setToggleSidebar={setToggleSidebar}
-            setCurrentUser={setCurrentUser}
             setNotifications={setNotifications}
+            toggleSideBar={toggleSideBar}
           />
         </Col>
       </Row>
@@ -116,13 +116,15 @@ const Home: FunctionComponent<HomeProps> = ({
             <div className="m-2">
               People online: {friends.length}
               {friends.length > 0 &&
-                friends.map((friend, key) => {
+                friends.map((friend: UserDefinition, key:Key) => {
                   return (
                     <div key={key} className="w-full m-5">
                       <User
                         name={friend.username}
                         src={friend.avatar}
+                        zoomed
                         pointer
+                        onClick={()=> router.push(`/chat/${friend.privateChatID}`)}
                       />
                     </div>
                   );
@@ -134,7 +136,7 @@ const Home: FunctionComponent<HomeProps> = ({
           {!toggleNotifications ? (
             <div className=" p-5">
               {connectedUsers.length > 0 ? (
-                connectedUsers.map((u, key) => {
+                connectedUsers.map((u:UserDefinition,key:Key) => {
                   return (
                     <Card
                       key={key}
@@ -172,7 +174,7 @@ const Home: FunctionComponent<HomeProps> = ({
             </div>
           ) : (
             <div className="flex items-center justify-center p-10 m-10">
-              {notifications.map((notification: unknown, key) => {
+              {notifications.map((notification: unknown, key: Key | null | undefined) => {
                 return <div key={key}>{notification as ReactNode}</div>;
               })}
             </div>

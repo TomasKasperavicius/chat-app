@@ -1,14 +1,8 @@
-import {
-  Container,
-} from "@nextui-org/react";
-import React, {
-  Dispatch,
-  SetStateAction,
-  FunctionComponent,
-} from "react";
+import { Container } from "@nextui-org/react";
+import React, { Dispatch, SetStateAction, FunctionComponent } from "react";
 import { Socket } from "socket.io-client";
 import LandingPage from "@/components/LandingPage";
-
+import { ChatRoomDefinition } from "@/components/ChatRoom";
 export interface Message {
   sender: UserDefinition | undefined;
   receiver?: UserDefinition | undefined;
@@ -17,7 +11,6 @@ export interface Message {
 }
 
 interface IndexProps {
-  user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
   typingUsers: string[];
@@ -26,6 +19,8 @@ interface IndexProps {
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
   toggleNotifications: boolean;
+  chatRooms: ChatRoomDefinition[];
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoomDefinition[]>>;
   setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
   setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -35,32 +30,38 @@ interface IndexProps {
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
   DOMAIN_NAME: string;
   SERVER_PORT: number;
 }
 export interface UserDefinition {
+  _id: string;
   avatar: string;
   username: string;
+  friends: UserDefinition[];
+  chatRooms: ChatRoomDefinition[];
   socketID?: string;
   loggedIn?: boolean;
   receivedFriendRequest?: boolean;
+  privateChatID?: string;
 }
 export interface SocketWithUser extends Socket {
-  user?: {
-    username: string;
-    avatar: string;
-  };
+  user?: UserDefinition;
 }
 // TODO: change login with nextUI modal component or setup google/github login
 // var socket: SocketWithUser | undefined = undefined;
 function Index({
   DOMAIN_NAME,
   SERVER_PORT,
-  user,
+  chatRooms,
+  connectedUsers,
+  notifications,
+  seenNewNotifications,
+  setChatRooms,
+  toggleNotifications,
+  toggleSideBar,
+  typingUsers,
   socket,
   friends,
-  setCurrentUser,
   setSeenNewNotifications,
   setNotifications,
   setFriends,
@@ -71,21 +72,21 @@ function Index({
 }: IndexProps) {
   return (
     <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
-        <LandingPage
-          setSeenNewNotifications={setSeenNewNotifications}
-          setSocket={setSocket}
-          setFriends={setFriends}
-          friends={friends}
-          setCurrentUser={setCurrentUser}
-          user={user}
-          setConnectedUsers={setConnectedUsers}
-          setMessages={setMessages}
-          setTypingUsers={setTypingUsers}
-          setNotifications={setNotifications}
-          socket={socket}
-          DOMAIN_NAME={DOMAIN_NAME}
-          SERVER_PORT={SERVER_PORT}
-        />
+      <LandingPage
+        setSeenNewNotifications={setSeenNewNotifications}
+        chatRooms={chatRooms}
+        setChatRooms={setChatRooms}
+        setSocket={setSocket}
+        setFriends={setFriends}
+        friends={friends}
+        setConnectedUsers={setConnectedUsers}
+        setMessages={setMessages}
+        setTypingUsers={setTypingUsers}
+        setNotifications={setNotifications}
+        socket={socket}
+        DOMAIN_NAME={DOMAIN_NAME}
+        SERVER_PORT={SERVER_PORT}
+      />
     </Container>
   );
 }

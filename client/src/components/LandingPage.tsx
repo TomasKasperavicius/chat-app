@@ -1,17 +1,20 @@
 import { Message, SocketWithUser, UserDefinition } from "@/pages";
 import { Row, Col, Button, Input, User } from "@nextui-org/react";
 import { useRouter } from "next/router";
-import { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useContext, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import FriendRequest from "./FriendRequest";
+import { ChatRoomDefinition } from "./ChatRoom";
+import axios from "axios";
+import { UserContextType, UserContext } from "@/Providers/UserContext";
 
 interface LandingPageProps {
-  user: UserDefinition;
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
+  chatRooms: ChatRoomDefinition[];
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoomDefinition[]>>;
   setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
   setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
-  setCurrentUser: React.Dispatch<React.SetStateAction<UserDefinition>>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setTypingUsers: React.Dispatch<React.SetStateAction<string[]>>;
   setConnectedUsers: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
@@ -33,9 +36,9 @@ type Colours =
   | undefined;
 
 const LandingPage: React.FunctionComponent<LandingPageProps> = ({
-  user,
   friends,
-  setCurrentUser,
+  chatRooms,
+  setChatRooms,
   setSocket,
   setFriends,
   setConnectedUsers,
@@ -49,27 +52,43 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
 }: LandingPageProps) => {
   const [colors, setColors] = useState<Colours[]>(["default", "default"]);
   const userInput = useRef<HTMLInputElement | null>(null);
+  const [avatar, setAvatar] = useState<string>("");
   const router = useRouter();
-  const setUser = () => {
-    const username = userInput?.current?.value ?? "";
-    if (username === "" || user?.avatar === "") return;
-    setCurrentUser({
-      username: username,
-      avatar: user.avatar,
-      loggedIn: true,
-    });
+  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
+  const setUser = async () => {
+    const name = userInput?.current?.value ?? "";
+    const image = avatar;
+    if (name === "" || image === "") return;
+    try {
+      const response = await axios.post(
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/addUser`,
+        { username: name, avatar: image }
+      );
+      const { _id, avatar, chatRooms, friends, username }: UserDefinition =
+        response.data;
+      console.log(response.data);
+      setCurrentUser({
+        ...user,
+        _id: _id,
+        avatar: avatar,
+        username: username,
+        friends: friends,
+        chatRooms: chatRooms,
+        loggedIn: true,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(user);
+
     if (socket === undefined) {
       var newSocket: SocketWithUser = io(`ws://${DOMAIN_NAME}:${SERVER_PORT}`, {
         query: {
-          username: username,
-          avatar: user.avatar,
+          username: name,
+          avatar: avatar,
         },
       });
-      newSocket.on("message", (message: Message) => {
-        setMessages((messages) => {
-          return [...messages, message];
-        });
-      });
+
       newSocket.on(
         "received friend request",
         (sender: UserDefinition, senderSocketID: string) => {
@@ -84,6 +103,10 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
             return [
               ...not,
               <FriendRequest
+                DOMAIN_NAME={DOMAIN_NAME}
+                SERVER_PORT={SERVER_PORT}
+                key={newSocket.id}
+                setChatRooms={setChatRooms}
                 setConnectedUsers={setConnectedUsers}
                 setFriends={setFriends}
                 setNotifications={setNotifications}
@@ -105,13 +128,18 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       });
       newSocket.on(
         "friend request accepted",
-        (sender: UserDefinition, senderSocketID: string) => {
+        (
+          sender: UserDefinition,
+          senderSocketID: string,
+          privateChatRoom: ChatRoomDefinition
+        ) => {
           setFriends((friends) => {
-            return [...friends, { ...sender, socketID: senderSocketID }];
+            return [...friends, { ...sender, socketID: senderSocketID,privateChatID: privateChatRoom._id }];
           });
           setConnectedUsers((users) => {
             return [...users.filter((u) => u.socketID !== senderSocketID)];
           });
+          newSocket.emit("joinRoom", privateChatRoom._id);
         }
       );
       newSocket.on("room created", (username: string) => {
@@ -132,21 +160,23 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       newSocket.on(
         "update connected users",
         (connectedUsers: UserDefinition[]) => {
-          setFriends(allFriends => {
-          setConnectedUsers((users) => {
-            const newUsers = connectedUsers.filter((u) => {
-              if (
-                u.socketID !== newSocket!.id &&
-                users.find((us) => u.socketID === us.socketID) === undefined &&
-                allFriends.find((f) => f.socketID === u.socketID) === undefined
-              )
-                return true;
-              return false;
+          setFriends((allFriends) => {
+            setConnectedUsers((users) => {
+              const newUsers = connectedUsers.filter((u) => {
+                if (
+                  u.socketID !== newSocket!.id &&
+                  users.find((us) => u.socketID === us.socketID) ===
+                    undefined &&
+                  allFriends.find((f) => f.socketID === u.socketID) ===
+                    undefined
+                )
+                  return true;
+                return false;
+              });
+              return [...users, ...newUsers];
             });
-            return [...users, ...newUsers];
+            return allFriends;
           });
-          return allFriends;
-        })
         }
       );
       newSocket.on("user disconnect", (sockedID: string) => {
@@ -154,10 +184,11 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           return [...users.filter((u) => u.socketID !== sockedID)];
         });
       });
-      newSocket!.user = { avatar: user.avatar, username: username };
+      newSocket.user = { ...user };
       setSocket(newSocket);
     }
     userInput!.current!.value = "";
+    setAvatar("");
     router.push("/home");
   };
   return (
@@ -202,9 +233,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     color[1] = "default";
                     return color;
                   });
-                  setCurrentUser((user) => {
-                    return { ...user, avatar: "/man.png" };
-                  });
+                  setAvatar("/man.png");
                 }}
               />
               <User
@@ -220,9 +249,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                     color[0] = "default";
                     return color;
                   });
-                  setCurrentUser((user: UserDefinition) => {
-                    return { ...user, avatar: "/woman.png" };
-                  });
+                  setAvatar("/woman.png");
                 }}
               />
             </div>
