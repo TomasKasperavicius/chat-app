@@ -22,6 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { NextRouter, useRouter } from "next/router";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
+import Sidebar from "@/components/Sidebar";
 interface HomeProps {
   socket: SocketWithUser | undefined;
   friends: UserDefinition[];
@@ -82,9 +83,8 @@ const Home: FunctionComponent<HomeProps> = ({
     // });
   };
   return (
-    <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
-      <Row fluid>
-        <Col>
+    <Container fluid responsive gap={0} className="h-full w-screen m-0">
+      <Row fluid className="w-screen">
           <Nav
             setSeenNewNotifications={setSeenNewNotifications}
             setToggleNotifications={setToggleNotifications}
@@ -94,44 +94,9 @@ const Home: FunctionComponent<HomeProps> = ({
             setNotifications={setNotifications}
             toggleSideBar={toggleSideBar}
           />
-        </Col>
       </Row>
-      <Row fluid css={{ minHeight: "100vh" }}>
-        {toggleSideBar && (
-          <Col
-            span={2}
-            css={{
-              minHeight: "100vh",
-              display: "flex",
-              flexDirection: "column",
-              borderRight: "solid",
-            }}
-          >
-            <div
-              onClick={() => setToggleSidebar(false)}
-              className="flex justify-end m-2"
-            >
-              <HighlightOffIcon className="h-full w-full hover:opacity-70 cursor-pointer" />
-            </div>
-            <div className="m-2">
-              People online: {friends.length}
-              {friends.length > 0 &&
-                friends.map((friend: UserDefinition, key:Key) => {
-                  return (
-                    <div key={key} className="w-full m-5">
-                      <User
-                        name={friend.username}
-                        src={friend.avatar}
-                        zoomed
-                        pointer
-                        onClick={()=> router.push(`/chat/${friend.privateChatID}`)}
-                      />
-                    </div>
-                  );
-                })}
-            </div>
-          </Col>
-        )}
+      <Row fluid className="relative" >
+        {toggleSideBar && <Sidebar friends={friends} setToggleSidebar={setToggleSidebar} />}
         <Col>
           {!toggleNotifications ? (
             <div className=" p-5">

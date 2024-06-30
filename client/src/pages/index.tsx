@@ -71,7 +71,7 @@ function Index({
   setTypingUsers,
 }: IndexProps) {
   return (
-    <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
+    <Container fluid responsive gap={0} css={{ minWidth: "100%" }} className="m-0">
       <LandingPage
         setSeenNewNotifications={setSeenNewNotifications}
         chatRooms={chatRooms}

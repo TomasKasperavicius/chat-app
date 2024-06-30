@@ -56,11 +56,11 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   };
   return (
     <div className="flex flex-col items-center w-full h-screen">
-      <div className="flex flex-col items-center w-3/4 h-full">
+      <div className="flex flex-col items-center w-3/4 h-full overflow-y-scroll">
         {messages.length > 0 &&
           messages.map((message, key) => {
             return (
-              <div key={key} className="w-full h-full">
+              <div key={key} className="w-full h-full ">
                 {message.sender?.username === user.username ? (
                   <div className="flex w-full items-end">
 
@@ -79,7 +79,7 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
                   </div>
                   </div>
                 ) : (
-                  <div key={key} className="flex w-2/3 justify-start">
+                  <div key={key} className="flex w-2/3 justify-end">
                     <div className="flex flex-col">
                       <Textarea
                         readOnly

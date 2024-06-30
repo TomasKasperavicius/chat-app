@@ -36,11 +36,7 @@ const Nav: FunctionComponent<NavProps> = ({
   setSeenNewNotifications,
   setToggleNotifications,
 }: NavProps) => {
-  const [activeLink, setActiveLink] = useState<boolean[] | undefined[]>([
-    undefined,
-    undefined,
-    undefined,
-  ]);
+  const [activeLink, setActiveLink] = useState<string>("");
   const collapseItems = [
     "Friends",
     "Chats",
@@ -49,12 +45,16 @@ const Nav: FunctionComponent<NavProps> = ({
     "Login",
     "Sign Up",
   ];
+  const links = [
+    'Friends',
+    'Chats'
+  ]
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
   const router = useRouter()
   const {user,setCurrentUser} = useContext<UserContextType>(UserContext)
   return (
-    <Navbar shouldHideOnScroll isBordered={isDark} variant="sticky">
+    <Navbar shouldHideOnScroll isBordered={isDark} borderWeight="bold" variant="sticky">
       <Navbar.Brand>
         <Navbar.Toggle aria-label="toggle navigation" />
         <Logo />
@@ -63,50 +63,29 @@ const Nav: FunctionComponent<NavProps> = ({
         </Text>
       </Navbar.Brand>
       <Navbar.Content hideIn="xs" variant="underline">
-        <Navbar.Link
-          key="friends-link"
-          id="friends-link"
+        {links.map((link, id)=>{
+          return (
+            <Navbar.Link
+          key={`${link}-link`}
+          id={`${link}-link`}
           href="#"
-          isActive={activeLink[0]}
+          isActive={link === activeLink}
           onClick={() => {
-            setActiveLink((arr: any) => {
-              arr[0] = true;
-              arr[1] = undefined;
-              arr[2] = undefined;
-              return [...arr];
-            });
-            setToggleSidebar(!toggleSideBar);
+            setActiveLink(link === activeLink ? "" : link);
+            if(link === 'Friends' || activeLink === 'Friends')
+              setToggleSidebar(!toggleSideBar);
           }}
         >
-          Friends
+          {link}
         </Navbar.Link>
-        <Navbar.Link
-        key="chats-link"
-          id="chats-link"
-          isActive={activeLink[1]}
-          href="#"
-          onClick={() => {
-            setActiveLink((arr: any) => {
-              arr[0] = undefined;
-              arr[1] = true;
-              arr[2] = undefined;
-              return [...arr];
-            });
-          }}
-        >
-          Chats
-        </Navbar.Link>
-        {/* <Navbar.Link id="3-link" href="#">
-        Pricing
-      </Navbar.Link>
-      <Navbar.Link id="4-link" href="#">
-        Company
-      </Navbar.Link> */}
+          )
+        })}
+       
       </Navbar.Content>
       <Navbar.Content>
         <Navbar.Item>
           <>
-            {type[0] === "d" ? type.replace("d", "D") : type.replace("l", "L")}{" "}
+            {type[0].toUpperCase()+type.slice(1)}{" "}
             theme
           </>
         </Navbar.Item>
@@ -140,10 +119,9 @@ const Nav: FunctionComponent<NavProps> = ({
               </div>
             </Dropdown.Trigger>
           </Navbar.Item>
-          <Dropdown.Menu aria-label="User menu actions" color="secondary">
+          <Dropdown.Menu aria-label="User menu actions" color="primary">
             <Dropdown.Item key="profile" className="flex">
-              <Text color="inherit">Signed in as:</Text>
-              <Text color="inherit">{user?.username}</Text>
+              <Text color="inherit">Signed in as: {user?.username}</Text>
             </Dropdown.Item>
             <Dropdown.Item key="Notifications" withDivider>
               <div
@@ -164,19 +142,14 @@ const Nav: FunctionComponent<NavProps> = ({
               </div>
             </Dropdown.Item>
             <Dropdown.Item key="logout" withDivider>
-              <Button
-                css={{ background: "transparent" }}
-                className="hover:opacity-70"
-                color="default"
-                onClick={() => {
+              <div onClick={() => {
                   setCurrentUser((u:UserDefinition) => {
                     u.loggedIn = false;
                     return { ...u };
                   });
-                }}
-              >
-                Log Out
-              </Button>
+                }}>
+                Log out
+              </div>
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>

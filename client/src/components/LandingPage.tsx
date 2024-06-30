@@ -51,18 +51,20 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   SERVER_PORT,
 }: LandingPageProps) => {
   const [colors, setColors] = useState<Colours[]>(["default", "default"]);
-  const userInput = useRef<HTMLInputElement | null>(null);
+  const username = useRef<HTMLInputElement | null>(null);
+  const password = useRef<HTMLInputElement | null>(null);
   const [avatar, setAvatar] = useState<string>("");
   const router = useRouter();
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   const setUser = async () => {
-    const name = userInput?.current?.value ?? "";
+    const name = username?.current?.value || "";
+    const pass = password?.current?.value || "";
     const image = avatar;
     if (name === "" || image === "") return;
     try {
       const response = await axios.post(
         `http://${DOMAIN_NAME}:${SERVER_PORT}/addUser`,
-        { username: name, avatar: image }
+        { username: name, password: pass, avatar: image }
       );
       const { _id, avatar, chatRooms, friends, username }: UserDefinition =
         response.data;
@@ -134,7 +136,14 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           privateChatRoom: ChatRoomDefinition
         ) => {
           setFriends((friends) => {
-            return [...friends, { ...sender, socketID: senderSocketID,privateChatID: privateChatRoom._id }];
+            return [
+              ...friends,
+              {
+                ...sender,
+                socketID: senderSocketID,
+                privateChatID: privateChatRoom._id,
+              },
+            ];
           });
           setConnectedUsers((users) => {
             return [...users.filter((u) => u.socketID !== senderSocketID)];
@@ -187,7 +196,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       newSocket.user = { ...user };
       setSocket(newSocket);
     }
-    userInput!.current!.value = "";
+    username!.current!.value = "";
     setAvatar("");
     router.push("/home");
   };
@@ -253,18 +262,30 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                 }}
               />
             </div>
-            <div className="flex  p-10">
+            <div className="flex flex-col">
               <Input
                 id="username-input"
                 width="w-1/2"
-                ref={userInput}
+                ref={username}
                 clearable
+                css={{ padding: "10px" }}
                 contentRightStyling={false}
                 placeholder="Enter username..."
                 title="usernameInputBox"
               />
+              <Input
+                id="username-input"
+                width="w-1/2"
+                ref={password}
+                css={{ padding: "10px" }}
+                type="password"
+                clearable
+                contentRightStyling={false}
+                placeholder="Enter password..."
+                title="usernameInputBox"
+              />
               <Button
-                css={{ minWidth: "10%", marginRight: "20px" }}
+                css={{ minWidth: "10%" }}
                 title="setUsernameButton"
                 onClick={setUser}
               >
