@@ -14,12 +14,12 @@ import { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserProvider } from "@/Providers/UserContext";
 
 const lightTheme = createTheme({
-  type: "Light",
+  type: "light",
   theme: {},
 });
 
 const darkTheme = createTheme({
-  type: "Dark",
+  type: "dark",
   theme: {},
 });
 
@@ -50,6 +50,7 @@ export default function App({ Component, pageProps }: AppProps) {
         }}
       >
         <NextUIProvider >
+
           <main className="w-full h-screen m-0">
             <UserProvider>
             <Component

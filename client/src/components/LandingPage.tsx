@@ -1,5 +1,5 @@
 import { Message, SocketWithUser, UserDefinition } from "@/pages";
-import { Row, Col, Button, Input, User } from "@nextui-org/react";
+import { Button, Input, User, Card, Text } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { FunctionComponent, useContext, useRef, useState } from "react";
 import { io } from "socket.io-client";
@@ -7,6 +7,8 @@ import FriendRequest from "./FriendRequest";
 import { ChatRoomDefinition } from "./ChatRoom";
 import axios from "axios";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
+import { Logo } from "@/pages/Logo";
+import Divider from "@mui/material/Divider";
 
 interface LandingPageProps {
   socket: SocketWithUser | undefined;
@@ -201,101 +203,99 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     router.push("/home");
   };
   return (
-    <>
-      <Row fluid>
-        <Col
-          span={12}
-          css={{
-            display: "flex",
-            flexDirection: "column",
-            alignContent: "center",
-            minHeight: "30vh",
-            justifyContent: "center",
-          }}
-        >
-          <Row fluid justify="center" css={{ margin: "10px" }}>
-            Already have an account?
-          </Row>
-          <Row fluid justify="center" css={{ margin: "10px" }}>
-            <Button>Login</Button>
-          </Row>
-        </Col>
-      </Row>
-      <Row fluid css={{ minHeight: "100vh" }}>
-        <Col>
-          <div className="flex flex-col justify-evenly items-center w-full max-h-full">
-            <p className="font-normal text-7xl p-10">
+    <div className="flex justify-center items-center w-full h-screen">
+      <div style={{ width: "80%", height: "60%" }}>
+        <div className="flex  justify-evenly items-center w-full min-h-full border border-double rounded-xl">
+          <span>
+            <span className="flex text-4xl pl-6 items-center">
+              <Logo width={50} height={50} />
+              <Text b color="inherit" hideIn="xs">
+                Quicksender
+              </Text>
+            </span>
+            <Divider orientation="vertical" style={{backgroundColor:"white"}} />
+            <p className="font-normal text-4xl p-10">
               Sign up and start chatting!
             </p>
-            <div className="flex justify-center items-center  p-10">
-              Select avatar:
-              <User
-                color={colors[0]}
-                zoomed
-                bordered
-                pointer
-                name=""
-                src="/man.png"
-                onClick={() => {
-                  setColors((color) => {
-                    color[0] = "success";
-                    color[1] = "default";
-                    return color;
-                  });
-                  setAvatar("/man.png");
-                }}
-              />
-              <User
-                color={colors[1]}
-                zoomed
-                bordered
-                pointer
-                name=""
-                src="/woman.png"
-                onClick={() => {
-                  setColors((color) => {
-                    color[1] = "success";
-                    color[0] = "default";
-                    return color;
-                  });
-                  setAvatar("/woman.png");
-                }}
-              />
+          </span>
+          <div className="flex flex-col items-center justify-center w-1/2 h-full  ">
+            <div className="flex">
+              <div className="flex flex-col">
+                <Input
+                  id="username-input"
+                  width="w-1/2"
+                  label="Username"
+                  ref={username}
+                  clearable
+                  css={{ padding: "10px" }}
+                  contentRightStyling={false}
+                  placeholder="Enter username..."
+                  title="usernameInputBox"
+                />
+                <Input
+                  id="username-input"
+                  label="Password"
+                  width="w-1/2"
+                  ref={password}
+                  css={{ padding: "10px" }}
+                  type="password"
+                  clearable
+                  contentRightStyling={false}
+                  placeholder="Enter password..."
+                  title="usernameInputBox"
+                />
+              </div>
+              <div className="flex justify-center items-center">
+                Select avatar:
+                <User
+                  color={colors[0]}
+                  zoomed
+                  bordered
+                  pointer
+                  name=""
+                  src="/man.png"
+                  onClick={() => {
+                    setColors((color) => {
+                      color[0] = "success";
+                      color[1] = "default";
+                      return color;
+                    });
+                    setAvatar("/man.png");
+                  }}
+                />
+                <User
+                  color={colors[1]}
+                  zoomed
+                  bordered
+                  pointer
+                  name=""
+                  src="/woman.png"
+                  onClick={() => {
+                    setColors((color) => {
+                      color[1] = "success";
+                      color[0] = "default";
+                      return color;
+                    });
+                    setAvatar("/woman.png");
+                  }}
+                />
+              </div>
             </div>
-            <div className="flex flex-col">
-              <Input
-                id="username-input"
-                width="w-1/2"
-                ref={username}
-                clearable
-                css={{ padding: "10px" }}
-                contentRightStyling={false}
-                placeholder="Enter username..."
-                title="usernameInputBox"
-              />
-              <Input
-                id="username-input"
-                width="w-1/2"
-                ref={password}
-                css={{ padding: "10px" }}
-                type="password"
-                clearable
-                contentRightStyling={false}
-                placeholder="Enter password..."
-                title="usernameInputBox"
-              />
-              <Button
-                css={{ minWidth: "10%" }}
-                title="setUsernameButton"
-                onClick={setUser}
-              >
+            <div className="flex justify-evenly items-center pt-10 w-full">
+              <Button title="setUsernameButton" onClick={setUser}>
                 Start chatting!
               </Button>
+              <div className="flex flex-col justify-center items-center relative">
+                <Text className="pr-4 absolute -top-8">
+                  Already have an account?{" "}
+                </Text>
+                <Button>Login</Button>
+              </div>
             </div>
           </div>
-        </Col>
-      </Row>
-    </>
+        </div>
+      </div>
+    </div>
   );
 };
 

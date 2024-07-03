@@ -1,12 +1,13 @@
-// import Image from 'next/image'
-export const Logo = () => (
-    
+import { LogoProps } from "@/types/interfaces";
+
+export const Logo : React.FC<LogoProps>= ({width = 32,height = 32}) => {
+  return (
   <svg
     className=""
     fill="none"
-    height="36"
+    height={height}
     viewBox="0 0 32 32"
-    width="36"
+    width={width}
     xmlns="http://www.w3.org/2000/svg"
   >
     <rect fill="var(--secondary)" height="100%" rx="16" width="100%" />
@@ -17,4 +18,4 @@ export const Logo = () => (
       fillRule="evenodd"
     />
   </svg>
-);
+);}
