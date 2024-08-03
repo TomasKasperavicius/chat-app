@@ -55,8 +55,8 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
     socket?.emit("sendMessage", chatRoom, msg);
   };
   return (
-    <div className="flex flex-col items-center w-full h-screen">
-      <div className="flex flex-col items-center w-3/4 h-full overflow-y-scroll">
+    <div className="flex flex-col items-center w-full h-full">
+      <div className="flex flex-col items-center w-full h-full overflow-y-scroll">
         {messages.length > 0 &&
           messages.map((message, key) => {
             return (
@@ -102,7 +102,7 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
             return <div key={key}>{user} is typing...</div>;
           })}
       </div>
-      <div className="w-3/4 flex justify-center p-8">
+      <div className="w-3/4 flex justify-center p-8 fixed bottom-0">
         <Input
           ref={messageInput}
           clearable

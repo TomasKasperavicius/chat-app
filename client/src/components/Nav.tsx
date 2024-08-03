@@ -11,32 +11,35 @@ import {
 } from "@nextui-org/react";
 import { useTheme as useNextTheme } from "next-themes";
 import { useRouter } from "next/router";
-import { FunctionComponent, useState,useContext } from "react";
+import { FunctionComponent, useState, useContext } from "react";
 interface NavProps {
-  toggleSideBar: boolean
+  toggleSideBar: boolean;
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
+  activeLink: string;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setNotifications: React.Dispatch<
     React.SetStateAction<React.FunctionComponent<{}>[]>
   >;
   setToggleNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveLink: React.Dispatch<React.SetStateAction<string>>;
 }
-import { Logo } from "../pages/Logo";
-import { UserContext,UserContextType } from "@/Providers/UserContext";
 
+import { Logo } from "../pages/Logo";
+import { UserContext, UserContextType } from "@/Providers/UserContext";
 
 const Nav: FunctionComponent<NavProps> = ({
   notifications,
   toggleSideBar,
   seenNewNotifications,
+  activeLink,
+  setActiveLink,
   setToggleSidebar,
   setNotifications,
   setSeenNewNotifications,
   setToggleNotifications,
 }: NavProps) => {
-  const [activeLink, setActiveLink] = useState<string>("");
   const collapseItems = [
     "Friends",
     "Chats",
@@ -45,16 +48,18 @@ const Nav: FunctionComponent<NavProps> = ({
     "Login",
     "Sign Up",
   ];
-  const links = [
-    'Friends',
-    'Chats'
-  ]
+  const links = ["Friends", "Chats"];
   const { setTheme } = useNextTheme();
   const { isDark, type } = useTheme();
-  const router = useRouter()
-  const {user,setCurrentUser} = useContext<UserContextType>(UserContext)
+  const router = useRouter();
+  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   return (
-    <Navbar shouldHideOnScroll isBordered={isDark} borderWeight="bold" variant="sticky">
+    <Navbar
+      shouldHideOnScroll
+      isBordered={isDark}
+      borderWeight="bold"
+      variant="sticky"
+    >
       <Navbar.Brand>
         <Navbar.Toggle aria-label="toggle navigation" />
         <Logo />
@@ -63,31 +68,27 @@ const Nav: FunctionComponent<NavProps> = ({
         </Text>
       </Navbar.Brand>
       <Navbar.Content hideIn="xs" variant="underline">
-        {links.map((link, id)=>{
+        {links.map((link, id) => {
           return (
             <Navbar.Link
-          key={`${link}-link`}
-          id={`${link}-link`}
-          href="#"
-          isActive={link === activeLink}
-          onClick={() => {
-            setActiveLink(link === activeLink ? "" : link);
-            if(link === 'Friends' || activeLink === 'Friends')
-              setToggleSidebar(!toggleSideBar);
-          }}
-        >
-          {link}
-        </Navbar.Link>
-          )
+              key={`${link}-link`}
+              id={`${link}-link`}
+              href="#"
+              isActive={link === activeLink}
+              onClick={() => {
+                setActiveLink(link === activeLink ? "" : link);
+                if (link === "Friends" || activeLink === "Friends")
+                  setToggleSidebar(!toggleSideBar);
+              }}
+            >
+              {link}
+            </Navbar.Link>
+          );
         })}
-       
       </Navbar.Content>
       <Navbar.Content>
         <Navbar.Item>
-          <>
-            {type[0].toUpperCase()+type.slice(1)}{" "}
-            theme
-          </>
+          <>{type[0].toUpperCase() + type.slice(1)} theme</>
         </Navbar.Item>
         <Navbar.Item>
           <Switch
@@ -128,7 +129,7 @@ const Nav: FunctionComponent<NavProps> = ({
                 className="flex items-center relative"
                 onClick={() => {
                   setSeenNewNotifications(true);
-                  router.push("/notifications")
+                  router.push("/notifications");
                 }}
               >
                 Notifications
@@ -142,12 +143,14 @@ const Nav: FunctionComponent<NavProps> = ({
               </div>
             </Dropdown.Item>
             <Dropdown.Item key="logout" withDivider>
-              <div onClick={() => {
-                  setCurrentUser((u:UserDefinition) => {
+              <div
+                onClick={() => {
+                  setCurrentUser((u: UserDefinition) => {
                     u.loggedIn = false;
                     return { ...u };
                   });
-                }}>
+                }}
+              >
                 Log out
               </div>
             </Dropdown.Item>

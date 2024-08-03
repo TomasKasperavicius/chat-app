@@ -6,6 +6,8 @@ import router from "next/router";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 
 const Sidebar: FunctionComponent<SidebarProps> = ({
+  activeLink,
+  setActiveLink,
   friends,
   setToggleSidebar,
 }) => {
@@ -17,6 +19,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
       !sidebarRef.current.contains(event.target as Node)
     ) {
       setToggleSidebar(false);
+      setActiveLink("");
     }
   };
 

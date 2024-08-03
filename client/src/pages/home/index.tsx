@@ -9,7 +9,7 @@ import {
   Loading,
 } from "@nextui-org/react";
 import {
-  Dispatch,
+  useState,
   FunctionComponent,
   Key,
   ReactNode,
@@ -63,18 +63,21 @@ const Home: FunctionComponent<HomeProps> = ({
   typingUsers,
 }) => {
   const router: NextRouter = useRouter();
-  const {user,setCurrentUser} = useContext<UserContextType>(UserContext)
+  const [activeLink, setActiveLink] = useState<string>("");
+  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   console.log(user);
   useEffect(() => {
     if (socket === undefined || !user.loggedIn) {
       router.push("/");
     }
   }, []);
-  
+
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr: UserDefinition[]) => {
-      arr.find((u: UserDefinition) => u.socketID === socketID)!.receivedFriendRequest = true;
+      arr.find(
+        (u: UserDefinition) => u.socketID === socketID
+      )!.receivedFriendRequest = true;
       return [...arr];
     });
     socket?.emit("send friend request", socketID, user);
@@ -85,23 +88,27 @@ const Home: FunctionComponent<HomeProps> = ({
   return (
     <Container fluid responsive gap={0} className="h-full w-screen m-0">
       <Row fluid className="w-screen">
-          <Nav
-            setSeenNewNotifications={setSeenNewNotifications}
-            setToggleNotifications={setToggleNotifications}
-            seenNewNotifications={seenNewNotifications}
-            notifications={notifications}
-            setToggleSidebar={setToggleSidebar}
-            setNotifications={setNotifications}
-            toggleSideBar={toggleSideBar}
-          />
+        <Nav
+          setActiveLink={setActiveLink}
+          setSeenNewNotifications={setSeenNewNotifications}
+          setToggleNotifications={setToggleNotifications}
+          seenNewNotifications={seenNewNotifications}
+          notifications={notifications}
+          setToggleSidebar={setToggleSidebar}
+          setNotifications={setNotifications}
+          toggleSideBar={toggleSideBar}
+          activeLink={activeLink}
+        />
       </Row>
-      <Row fluid className="relative" >
-        {toggleSideBar && <Sidebar friends={friends} setToggleSidebar={setToggleSidebar} />}
+      <Row fluid className="relative">
+        {toggleSideBar && (
+          <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
+        )}
         <Col>
           {!toggleNotifications ? (
             <div className=" p-5">
               {connectedUsers.length > 0 ? (
-                connectedUsers.map((u:UserDefinition,key:Key) => {
+                connectedUsers.map((u: UserDefinition, key: Key) => {
                   return (
                     <Card
                       key={key}
@@ -139,9 +146,11 @@ const Home: FunctionComponent<HomeProps> = ({
             </div>
           ) : (
             <div className="flex items-center justify-center p-10 m-10">
-              {notifications.map((notification: unknown, key: Key | null | undefined) => {
-                return <div key={key}>{notification as ReactNode}</div>;
-              })}
+              {notifications.map(
+                (notification: unknown, key: Key | null | undefined) => {
+                  return <div key={key}>{notification as ReactNode}</div>;
+                }
+              )}
             </div>
           )}
         </Col>
