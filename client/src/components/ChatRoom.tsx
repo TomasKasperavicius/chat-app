@@ -55,28 +55,27 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
     socket?.emit("sendMessage", chatRoom, msg);
   };
   return (
-    <div className="flex flex-col items-center w-full h-full">
-      <div className="flex flex-col items-center w-full h-full overflow-y-scroll">
+    <div className="flex flex-col justify-center items-center w-full h-full">
+      <div className="flex flex-col items-center w-1/2 h-full">
         {messages.length > 0 &&
           messages.map((message, key) => {
             return (
-              <div key={key} className="w-full h-full ">
+              <div key={key} className="w-full flex justify-between">
                 {message.sender?.username === user.username ? (
                   <div className="flex w-full items-end">
-
-                  <div className="flex w-2/3">
-                    <div className="flex flex-col">
-                      <Textarea
-                        readOnly
-                        label={"You"}
-                        placeholder={message.content}
-                        status="success"
-                      />
-                      <span>
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </span>
+                    <div className="flex w-2/3">
+                      <div className="flex flex-col">
+                        <Textarea
+                          readOnly
+                          label={"You"}
+                          placeholder={message.content}
+                          status="success"
+                        />
+                        <span>
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
                   </div>
                 ) : (
                   <div key={key} className="flex w-2/3 justify-end">
@@ -96,13 +95,14 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
             );
           })}
       </div>
-      <div>
-        {typingUsers.length > 0 &&
-          typingUsers.map((user, key) => {
-            return <div key={key}>{user} is typing...</div>;
-          })}
-      </div>
-      <div className="w-3/4 flex justify-center p-8 fixed bottom-0">
+
+      <div className="flex justify-center items-center p-8 relative">
+        <div className="absolute bottom-20 left-10">
+          {typingUsers.length > 0 &&
+            typingUsers.map((user, key) => {
+              return <div key={key}>{user} is typing...</div>;
+            })}
+        </div>
         <Input
           ref={messageInput}
           clearable

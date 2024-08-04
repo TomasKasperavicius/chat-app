@@ -1,10 +1,5 @@
 import Nav from "@/components/Nav";
-import {
-  Row,
-  Col,
-  User,
-  Container,
-} from "@nextui-org/react";
+import { Row, Col, User, Container } from "@nextui-org/react";
 import {
   Dispatch,
   FunctionComponent,
@@ -16,7 +11,13 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { NextRouter, useRouter } from "next/router";
 import ChatRoom, { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserDefinition, SocketWithUser, Message } from "@/pages";
-import { GetServerSideProps, GetServerSidePropsContext, NextApiHandler, NextApiRequest, NextPageContext } from "next";
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  NextApiHandler,
+  NextApiRequest,
+  NextPageContext,
+} from "next";
 import { Context } from "vm";
 import { NextAuthHeader } from "next-auth/core";
 import axios from "axios";
@@ -30,6 +31,8 @@ interface ChatRoomHomeProps {
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
   toggleNotifications: boolean;
+  activeLink: string;
+  setActiveLink: React.Dispatch<React.SetStateAction<string>>;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setToggleNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
@@ -41,16 +44,18 @@ interface ChatRoomHomeProps {
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
-  DOMAIN_NAME:string,
-  SERVER_PORT:number,
+  DOMAIN_NAME: string;
+  SERVER_PORT: number;
 }
 
-const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> =  ({
+const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
   user,
   connectedUsers,
   friends,
   notifications,
+  activeLink,
   seenNewNotifications,
+  setActiveLink,
   setConnectedUsers,
   setCurrentUser,
   setFriends,
@@ -68,15 +73,15 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> =  ({
   SERVER_PORT,
 }) => {
   const router: NextRouter = useRouter();
-  const [data, setData] = useState<ChatRoomDefinition>()
+  const [data, setData] = useState<ChatRoomDefinition>();
   useEffect(() => {
-    const fetchData = async()=>{
+    const fetchData = async () => {
       const response = await axios.get(
         `http://${DOMAIN_NAME}:${SERVER_PORT}/chatRoom/${router.query.id}`
       );
-      setData(response.data)
-    }
-    fetchData()
+      setData(response.data);
+    };
+    fetchData();
   }, []);
 
   return (
@@ -84,6 +89,8 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> =  ({
       <Row fluid>
         <Col>
           <Nav
+            activeLink={activeLink}
+            setActiveLink={setActiveLink}
             setSeenNewNotifications={setSeenNewNotifications}
             setToggleNotifications={setToggleNotifications}
             toggleSideBar={toggleSideBar}
@@ -128,11 +135,7 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> =  ({
             </div>
           </Col>
         )}
-        <ChatRoom
-          chatRoom={data}
-          socket={socket}
-          typingUsers={typingUsers}
-        />
+        <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers} />
       </Row>
     </Container>
   );

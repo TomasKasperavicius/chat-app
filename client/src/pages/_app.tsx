@@ -8,10 +8,12 @@ import {
   ThemeProvider as NextThemesProvider,
 } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Message, SocketWithUser, UserDefinition } from ".";
 import { ChatRoomDefinition } from "@/components/ChatRoom";
-import { UserProvider } from "@/Providers/UserContext";
+import { UserContext, UserContextType, UserProvider } from "@/Providers/UserContext";
+import user from "@nextui-org/react/types/user";
+import { NextRouter, useRouter } from "next/router";
 
 const lightTheme = createTheme({
   type: "light",
@@ -37,6 +39,15 @@ export default function App({ Component, pageProps }: AppProps) {
     useState<boolean>(false);
   const [seenNewNotifications, setSeenNewNotifications] =
     useState<boolean>(true);
+  const [activeLink, setActiveLink] = useState<string>("");
+  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
+  const router: NextRouter = useRouter();
+
+  useEffect(() => {
+    if (socket === undefined || !user.loggedIn) {
+      router.push("/");
+    }
+  }, []);
   return (
     //<SSRProvider></SSRProvider>
     <SessionProvider session={pageProps.session}>
@@ -60,6 +71,8 @@ export default function App({ Component, pageProps }: AppProps) {
               notifications={notifications}
               seenNewNotifications={seenNewNotifications}
               chatRooms={chatRooms}
+              activeLink={activeLink}
+              setActiveLink={setActiveLink}
               setChatRooms={setChatRooms}
               setConnectedUsers={setConnectedUsers}
               setFriends={setFriends}

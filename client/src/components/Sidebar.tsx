@@ -34,7 +34,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
       span={2}
       className={`fixed z-50 bg-black `}
       css={{
-        minHeight: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         borderRight: "solid",

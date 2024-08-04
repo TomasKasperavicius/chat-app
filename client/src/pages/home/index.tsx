@@ -25,6 +25,8 @@ import { UserContextType, UserContext } from "@/Providers/UserContext";
 import Sidebar from "@/components/Sidebar";
 interface HomeProps {
   socket: SocketWithUser | undefined;
+  activeLink: string;
+  setActiveLink: React.Dispatch<React.SetStateAction<string>>;
   friends: UserDefinition[];
   typingUsers: string[];
   toggleSideBar: boolean;
@@ -49,6 +51,8 @@ const Home: FunctionComponent<HomeProps> = ({
   friends,
   notifications,
   seenNewNotifications,
+  activeLink,
+  setActiveLink,
   setConnectedUsers,
   setFriends,
   setMessages,
@@ -62,15 +66,9 @@ const Home: FunctionComponent<HomeProps> = ({
   toggleSideBar,
   typingUsers,
 }) => {
-  const router: NextRouter = useRouter();
-  const [activeLink, setActiveLink] = useState<string>("");
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   console.log(user);
-  useEffect(() => {
-    if (socket === undefined || !user.loggedIn) {
-      router.push("/");
-    }
-  }, []);
+  
 
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
@@ -100,7 +98,7 @@ const Home: FunctionComponent<HomeProps> = ({
           activeLink={activeLink}
         />
       </Row>
-      <Row fluid className="relative">
+      <Row fluid className="relative h-full">
         {toggleSideBar && (
           <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
         )}
