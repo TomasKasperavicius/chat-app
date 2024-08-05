@@ -67,6 +67,18 @@ app.get("/chatRoom/:id", async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 });
+app.post("/chatRoom/:id", async (req: Request, res: Response) => {
+  try {
+    const { id, message } = req.params;
+    const chatRoom = await ChatRoom.updateOne(
+      { _id: id },
+      { $push: { messages: message } }
+    );
+    res.status(200).json(chatRoom);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 app.post("/saveSessionData", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

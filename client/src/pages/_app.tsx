@@ -12,7 +12,6 @@ import { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Message, SocketWithUser, UserDefinition } from ".";
 import { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserContext, UserContextType, UserProvider } from "@/Providers/UserContext";
-import user from "@nextui-org/react/types/user";
 import { NextRouter, useRouter } from "next/router";
 
 const lightTheme = createTheme({
@@ -49,7 +48,6 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, []);
   return (
-    //<SSRProvider></SSRProvider>
     <SessionProvider session={pageProps.session}>
       <NextThemesProvider
 

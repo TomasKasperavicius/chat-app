@@ -11,15 +11,6 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { NextRouter, useRouter } from "next/router";
 import ChatRoom, { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserDefinition, SocketWithUser, Message } from "@/pages";
-import {
-  GetServerSideProps,
-  GetServerSidePropsContext,
-  NextApiHandler,
-  NextApiRequest,
-  NextPageContext,
-} from "next";
-import { Context } from "vm";
-import { NextAuthHeader } from "next-auth/core";
 import axios from "axios";
 interface ChatRoomHomeProps {
   user: UserDefinition;
@@ -49,24 +40,16 @@ interface ChatRoomHomeProps {
 }
 
 const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
-  user,
-  connectedUsers,
   friends,
   notifications,
   activeLink,
   seenNewNotifications,
   setActiveLink,
-  setConnectedUsers,
-  setCurrentUser,
-  setFriends,
-  setMessages,
   setNotifications,
   setSeenNewNotifications,
   setToggleNotifications,
   setToggleSidebar,
-  setTypingUsers,
   socket,
-  toggleNotifications,
   toggleSideBar,
   typingUsers,
   DOMAIN_NAME,
@@ -135,7 +118,7 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
             </div>
           </Col>
         )}
-        <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers} />
+        <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers} DOMAIN_NAME={DOMAIN_NAME} SERVER_PORT={SERVER_PORT}/>
       </Row>
     </Container>
   );

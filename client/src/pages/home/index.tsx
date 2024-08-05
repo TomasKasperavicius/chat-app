@@ -67,9 +67,7 @@ const Home: FunctionComponent<HomeProps> = ({
   typingUsers,
 }) => {
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
-  console.log(user);
   
-
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr: UserDefinition[]) => {

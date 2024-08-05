@@ -10,11 +10,14 @@ import {
   useRef,
   useState,
 } from "react";
+import axios from "axios";
 
 interface ChatRoomProps {
   chatRoom: ChatRoomDefinition | undefined;
   socket: SocketWithUser | undefined;
   typingUsers: string[];
+  DOMAIN_NAME: string;
+  SERVER_PORT: number;
 }
 export interface ChatRoomDefinition {
   _id: string;
@@ -27,28 +30,44 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   chatRoom,
   socket,
   typingUsers,
+  DOMAIN_NAME,
+  SERVER_PORT
 }: ChatRoomProps) => {
   const messageInput = useRef<HTMLInputElement | null>(null);
-  const [messages, setMessages] = useState<Message[]>(chatRoom?.messages || []);
+  const [messages, setMessages] = useState<Message[]>([]);
   const { user } = useContext<UserContextType>(UserContext);
   useEffect(() => {
     socket?.removeAllListeners("receivedMessage");
-    console.log(socket?.listeners("receivedMessage"));
-    socket?.on("receivedMessage", (message: Message) => {
-      console.log("here");
+    socket?.on("receivedMessage", async (message: Message) => {
+      await saveMessageToMongoDB(message)
       setMessages((messages) => {
         return [...messages, message];
       });
     });
-  });
+  },[chatRoom]);
+  
+  const saveMessageToMongoDB = async (message: Message)=>{
+    await axios.get(
+      `http://${DOMAIN_NAME}:${SERVER_PORT}/chatRoom/${chatRoom?._id}`,{
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        data:{
+          id: chatRoom?._id,
+          message: message, 
+        }
+      }
+    );
+  }
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const msg: Message = {
       sender: user,
       timestamp: new Date().getTime(),
       content: messageInput?.current?.value,
     };
     messageInput!.current!.value = "";
+    await saveMessageToMongoDB(msg)
     setMessages((messages: Message[]) => {
       return [...messages, msg];
     });
@@ -129,4 +148,12 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   );
 };
 
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      DOMAIN_NAME: process.env.DOMAIN_NAME,
+      SERVER_PORT: process.env.SERVER_PORT,
+    },
+  };
+};
 export default ChatRoom;

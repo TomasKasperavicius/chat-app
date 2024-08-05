@@ -55,6 +55,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   const [colors, setColors] = useState<Colours[]>(["default", "default"]);
   const username = useRef<HTMLInputElement | null>(null);
   const password = useRef<HTMLInputElement | null>(null);
+  const email = useRef<HTMLInputElement | null>(null);
   const [avatar, setAvatar] = useState<string>("");
   const router = useRouter();
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
@@ -70,7 +71,6 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       );
       const { _id, avatar, chatRooms, friends, username }: UserDefinition =
         response.data;
-      console.log(response.data);
       setCurrentUser({
         ...user,
         _id: _id,
@@ -83,7 +83,6 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     } catch (error) {
       console.error(error);
     }
-    console.log(user);
 
     if (socket === undefined) {
       var newSocket: SocketWithUser = io(`ws://${DOMAIN_NAME}:${SERVER_PORT}`, {
@@ -213,7 +212,10 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                 Quicksender
               </Text>
             </span>
-            <Divider orientation="vertical" style={{backgroundColor:"white"}} />
+            <Divider
+              orientation="vertical"
+              style={{ backgroundColor: "white" }}
+            />
             <p className="font-normal text-4xl p-10">
               Sign up and start chatting!
             </p>
@@ -231,6 +233,17 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                   contentRightStyling={false}
                   placeholder="Enter username..."
                   title="usernameInputBox"
+                />
+                <Input
+                  id="email-input"
+                  width="w-1/2"
+                  ref={email}
+                  css={{ padding: "10px" }}
+                  type="email"
+                  clearable
+                  contentRightStyling={false}
+                  placeholder="Enter email..."
+                  title="Email"
                 />
                 <Input
                   id="username-input"
