@@ -62,24 +62,29 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   const setUser = async () => {
     const name = username?.current?.value || "";
     const pass = password?.current?.value || "";
+    const email = password?.current?.value || "";
+
     const image = avatar;
     if (name === "" || image === "") return;
     try {
       const response = await axios.post(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/addUser`,
-        { username: name, password: pass, avatar: image }
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/register`,
+        { username: name, password: pass, email:email, avatar: image }
       );
-      const { _id, avatar, chatRooms, friends, username }: UserDefinition =
-        response.data;
-      setCurrentUser({
-        ...user,
-        _id: _id,
-        avatar: avatar,
-        username: username,
-        friends: friends,
-        chatRooms: chatRooms,
-        loggedIn: true,
-      });
+      if(response.status === 200){
+        const { _id, avatar, chatRooms, friends, username }: UserDefinition =
+          response.data;
+        setCurrentUser({
+          ...user,
+          _id: _id,
+          avatar: avatar,
+          username: username,
+          friends: friends,
+          chatRooms: chatRooms,
+          loggedIn: true,
+        });
+      }
+      else return
     } catch (error) {
       console.error(error);
     }
@@ -237,6 +242,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                 <Input
                   id="email-input"
                   width="w-1/2"
+                  label="Email"
                   ref={email}
                   css={{ padding: "10px" }}
                   type="email"

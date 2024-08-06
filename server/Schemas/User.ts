@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const User = new Schema({
   username: String,
   avatar: String,
+  email: String,
   password: String,
   chatRooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ChatRoom' }],
   friends:[{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

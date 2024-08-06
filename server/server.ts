@@ -29,9 +29,9 @@ app.post("/addPrivateChatRoom", async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 });
-app.post("/addUser", async (req: Request, res: Response) => {
+app.post("/register", async (req: Request, res: Response) => {
   try {
-    const { avatar, username, password }: UserInfo = req.body;
+    const { avatar, username, password, email }: UserInfo = req.body;
     const hashedPassword = await argon2.hash(password as string);
     const user = new User({
       avatar: avatar,
@@ -113,6 +113,7 @@ interface Message {
 export interface UserInfo {
   username: string;
   password?: string;
+  email:string;
   avatar?: string;
   socketID?: string;
 }
@@ -123,6 +124,7 @@ const fetchConnectedUsers = async () => {
   allSockets.forEach((socket) => {
     connectedUsers.push({
       avatar: socket.handshake.query.avatar as string,
+      email: socket.handshake.query.email as string,
       username: socket.handshake.query.username as string,
       socketID: socket.id,
     });
