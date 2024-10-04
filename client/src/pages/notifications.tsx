@@ -25,6 +25,7 @@ interface NotificationsProps {
   notifications: React.FunctionComponent<{}>[];
   seenNewNotifications: boolean;
   toggleNotifications: boolean;
+  activeLink: string;
   setToggleSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setToggleNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
@@ -34,6 +35,7 @@ interface NotificationsProps {
   setNotifications: React.Dispatch<
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
+  setActiveLink: React.Dispatch<React.SetStateAction<string>>;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
 }
@@ -43,6 +45,7 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
   friends,
   notifications,
   seenNewNotifications,
+  activeLink,
   setConnectedUsers,
   setFriends,
   setMessages,
@@ -50,6 +53,7 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
   setSeenNewNotifications,
   setToggleNotifications,
   setToggleSidebar,
+  setActiveLink,
   setTypingUsers,
   socket,
   toggleNotifications,
@@ -81,6 +85,8 @@ const Notifications: FunctionComponent<NotificationsProps> = ({
             toggleSideBar={toggleSideBar}
             setToggleSidebar={setToggleSidebar}
             setNotifications={setNotifications}
+            setActiveLink={setActiveLink}
+            activeLink={activeLink}
           />
         </Col>
       </Row>

@@ -12,6 +12,7 @@ import { NextRouter, useRouter } from "next/router";
 import ChatRoom, { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserDefinition, SocketWithUser, Message } from "@/pages";
 import axios from "axios";
+import Sidebar from "@/components/Sidebar";
 interface ChatRoomHomeProps {
   user: UserDefinition;
   socket: SocketWithUser | undefined;
@@ -60,7 +61,7 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/chatRoom/${router.query.id}`
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms/${router.query.id}`
       );
       setData(response.data);
     };
@@ -85,38 +86,8 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
         </Col>
       </Row>
       <Row fluid css={{ minHeight: "100vh" }}>
-        {toggleSideBar && (
-          <Col
-            span={2}
-            css={{
-              minHeight: "100vh",
-              display: "flex",
-              flexDirection: "column",
-              borderRight: "solid",
-            }}
-          >
-            <div
-              onClick={() => setToggleSidebar(false)}
-              className="flex justify-end m-2"
-            >
-              <HighlightOffIcon className="h-full w-full hover:opacity-70 cursor-pointer" />
-            </div>
-            <div className="m-2">
-              People online: {friends.length}
-              {friends.length > 0 &&
-                friends.map((friend, key) => {
-                  return (
-                    <div key={key} className="w-full m-5">
-                      <User
-                        name={friend.username}
-                        src={friend.avatar}
-                        pointer
-                      />
-                    </div>
-                  );
-                })}
-            </div>
-          </Col>
+      {toggleSideBar && (
+          <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
         )}
         <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers} DOMAIN_NAME={DOMAIN_NAME} SERVER_PORT={SERVER_PORT}/>
       </Row>

@@ -37,8 +37,8 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const { user } = useContext<UserContextType>(UserContext);
   useEffect(() => {
-    socket?.removeAllListeners("receivedMessage");
-    socket?.on("receivedMessage", async (message: Message) => {
+    socket?.removeAllListeners("message");
+    socket?.on("message", async (message: Message) => {
       await saveMessageToMongoDB(message)
       setMessages((messages) => {
         return [...messages, message];
@@ -47,14 +47,14 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   },[chatRoom]);
   
   const saveMessageToMongoDB = async (message: Message)=>{
-    await axios.get(
-      `http://${DOMAIN_NAME}:${SERVER_PORT}/chatRoom/${chatRoom?._id}`,{
+    await axios.put(
+      `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms/${chatRoom?._id}`,{
         headers: {
           'Content-Type': 'application/json', 
         },
         data:{
           id: chatRoom?._id,
-          message: message, 
+          message: message,
         }
       }
     );
@@ -67,11 +67,7 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
       content: messageInput?.current?.value,
     };
     messageInput!.current!.value = "";
-    await saveMessageToMongoDB(msg)
-    setMessages((messages: Message[]) => {
-      return [...messages, msg];
-    });
-    socket?.emit("sendMessage", chatRoom, msg);
+    socket?.emit("message", chatRoom?._id, msg);
   };
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
@@ -128,8 +124,8 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
           contentRightStyling={false}
           placeholder="Type your message..."
           title="messageInputBox"
-          onFocus={() => socket?.emit("typing", user.username)}
-          onBlur={() => socket?.emit("stopped typing", user.username)}
+          onFocus={() => socket?.emit("typing", user.username, chatRoom?._id)}
+          onBlur={() => socket?.emit("stopped typing", user.username, chatRoom?._id)}
           contentRight={
             <SendButton title="sendMessageButton" onClick={sendMessage}>
               <SendIcon

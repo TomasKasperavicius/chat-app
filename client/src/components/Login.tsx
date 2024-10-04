@@ -14,7 +14,7 @@ const Login: FunctionComponent<LoginProps> = ({ DOMAIN_NAME, SERVER_PORT }) => {
   const login = async () => {
     try {
       const response: AxiosResponse<any, any> = await axios.post(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/login`,
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/auth/login`,
         { username: userName.current?.value ?? '', password: pass.current?.value ?? ''}
       );
       const { _id, avatar, chatRooms, friends, username }: UserDefinition =

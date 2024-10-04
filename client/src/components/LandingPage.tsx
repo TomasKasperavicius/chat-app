@@ -68,7 +68,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     if (name === "" || image === "") return;
     try {
       const response = await axios.post(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/register`,
+        `http://${DOMAIN_NAME}:${SERVER_PORT}/auth/register`,
         { username: name, password: pass, email:email, avatar: image }
       );
       if(response.status === 200){

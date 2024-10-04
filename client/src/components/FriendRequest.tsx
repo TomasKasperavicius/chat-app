@@ -60,13 +60,14 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
               
               try {
                 const response = await axios.post(
-                  `http://${DOMAIN_NAME}:${SERVER_PORT}/addPrivateChatRoom`,
+                  `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms`,
                   {
                     owner: [user._id, sender._id],
                     type: "private",
                     participants: [user._id, sender._id],
                   }
                   );
+                  console.log(response.data);
                   const chatRoom: ChatRoomDefinition = response.data;
                   socket.emit(
                     "accept friend request",
