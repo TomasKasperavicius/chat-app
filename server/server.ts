@@ -5,8 +5,8 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import connectToDB from "./mongodb";
 import socketHandler from "./sockets";
-import authRoutes from "./Routes/AuthRouter";
-import chatRoomRoutes from "./Routes/ChatRoomRouter";
+import authRoutes from "./Routes/authRouter";
+import chatRoomRoutes from "./Routes/chatRoomRouter";
 
 dotenv.config();
 

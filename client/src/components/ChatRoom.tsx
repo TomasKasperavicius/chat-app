@@ -110,36 +110,42 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
             );
           })}
       </div>
-
-      <div className="flex justify-center items-center p-8 relative">
-        <div className="absolute bottom-20 left-10">
-          {typingUsers.length > 0 &&
-            typingUsers.map((user, key) => {
-              return <div key={key}>{user} is typing...</div>;
-            })}
+      <div className="flex flex-col justify-center items-center w-full h-full">
+  <div className="fixed bottom-0 left-0 w-full flex justify-center p-8">
+    <div className="flex flex-col items-center w-full max-w-lg">
+      {typingUsers.length > 0 && (
+        <div>
+          {typingUsers.map((user, key) => (
+            <div key={key}>{user} is typing...</div>
+          ))}
         </div>
-        <Input
-          ref={messageInput}
-          clearable
-          contentRightStyling={false}
-          placeholder="Type your message..."
-          title="messageInputBox"
-          onFocus={() => socket?.emit("typing", user.username, chatRoom?._id)}
-          onBlur={() => socket?.emit("stopped typing", user.username, chatRoom?._id)}
-          contentRight={
-            <SendButton title="sendMessageButton" onClick={sendMessage}>
-              <SendIcon
-                filled={undefined}
-                size={undefined}
-                height={undefined}
-                width={undefined}
-                label={undefined}
-                className={undefined}
-              />
-            </SendButton>
-          }
-        />
-      </div>
+      )}
+      <Input
+        ref={messageInput}
+        clearable
+        contentRightStyling={false}
+        placeholder="Type your message..."
+        title="messageInputBox"
+        onFocus={() => socket?.emit("typing", user.username, chatRoom?._id)}
+        onBlur={() => socket?.emit("stopped typing", user.username, chatRoom?._id)}
+        contentRight={
+          <SendButton title="sendMessageButton" onClick={sendMessage}>
+            <SendIcon
+              filled={undefined}
+              size={undefined}
+              height={undefined}
+              width={undefined}
+              label={undefined}
+              className={undefined}
+            />
+          </SendButton>
+        }
+      />
+    </div>
+  </div>
+</div>
+
+
     </div>
   );
 };
