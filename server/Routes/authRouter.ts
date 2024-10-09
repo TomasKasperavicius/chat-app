@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/register", async (req: Request, res: Response) => {
   try {
     const { avatar, username, password, email }: UserInfo = req.body;
-    const user = User.findOne({username:username, email:email})
+    const user = await User.findOne({username:username, email:email})
     if(!user)
       {
       const hashedPassword = await argon2.hash(password);
@@ -19,7 +19,7 @@ router.post("/register", async (req: Request, res: Response) => {
         email,
       });
       await newUser.save();
-      res.status(200).json(user);
+      res.status(200).json(newUser);
     }
     else{
       res.status(409).json({error:"User already exists."})
