@@ -39,10 +39,10 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   useEffect(() => {
     socket?.removeAllListeners("message");
     socket?.on("message", async (message: Message) => {
-      await saveMessageToMongoDB(message)
       setMessages((messages) => {
         return [...messages, message];
       });
+      await saveMessageToMongoDB(message)
     });
   },[chatRoom]);
   
@@ -53,8 +53,10 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
           'Content-Type': 'application/json', 
         },
         data:{
-          id: chatRoom?._id,
-          message: message,
+          owner: chatRoom?.owner,
+          participants: chatRoom?.participants,
+          messages: message,
+          type: chatRoom?.type,
         }
       }
     );
