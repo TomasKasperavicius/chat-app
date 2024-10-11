@@ -9,6 +9,7 @@ import axios from "axios";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
 import { Logo } from "@/pages/Logo";
 import Divider from "@mui/material/Divider";
+import Link from "next/link";
 
 interface LandingPageProps {
   socket: SocketWithUser | undefined;
@@ -69,9 +70,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     try {
       const response = await axios.post(
         `http://${DOMAIN_NAME}:${SERVER_PORT}/auth/register`,
-        { username: name, password: pass, email:email, avatar: image }
+        { username: name, password: pass, email: email, avatar: image }
       );
-      if(response.status === 200){
+      if (response.status === 200) {
         const { _id, avatar, chatRooms, friends, username }: UserDefinition =
           response.data;
         setCurrentUser({
@@ -83,8 +84,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           chatRooms: chatRooms,
           loggedIn: true,
         });
-      }
-      else return
+      } else return;
     } catch (error) {
       console.error(error);
     }
@@ -308,7 +308,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                 <Text className="pr-4 absolute -top-8">
                   Already have an account?{" "}
                 </Text>
-                <Button>Login</Button>
+                <Link href="/auth/login">
+                  <Button>Login</Button>
+                </Link>
               </div>
             </div>
           </div>

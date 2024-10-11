@@ -42,11 +42,11 @@ export default function App({ Component, pageProps }: AppProps) {
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   const router: NextRouter = useRouter();
 
-  useEffect(() => {
-    if (socket === undefined || !user.loggedIn) {
-      router.push("/");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (socket === undefined || !user.loggedIn) {
+  //     router.push("/");
+  //   }
+  // }, []);
   return (
     <SessionProvider session={pageProps.session}>
       <NextThemesProvider
