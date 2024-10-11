@@ -2,26 +2,27 @@ import { UserDefinition } from "@/pages";
 import { Logo } from "@/pages/Logo";
 import { Input, Button } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
-import { FunctionComponent, useRef } from "react";
+import { FunctionComponent, useContext, useRef } from "react";
 import { useTheme, Text } from '@nextui-org/react';
-interface LoginProps {
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
-}
+import { UserContextType, UserContext } from "@/Providers/UserContext";
+import { NextRouter, useRouter } from "next/router";
 
-const Login: FunctionComponent<LoginProps> = ({ DOMAIN_NAME, SERVER_PORT }) => {
+const Login: FunctionComponent = () => {
   const userName = useRef<HTMLInputElement | null>(null);
   const pass = useRef<HTMLInputElement | null>(null);
+  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
+  const router: NextRouter = useRouter();
+
   const login = async () => {
     try {
-      console.log(`http://${DOMAIN_NAME}:${SERVER_PORT}/auth/login`)
       const response: AxiosResponse<any, any> = await axios.post(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/auth/login`,
+        `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/auth/login`,
         { username: userName.current?.value ?? '', password: pass.current?.value ?? ''}
       );
       const { _id, avatar, chatRooms, friends, username }: UserDefinition =
         response.data;
-        console.log(response.data)
+        setCurrentUser(response.data);
+        router.push("/home");
     } catch (error) {
       console.log(error);
     }

@@ -25,8 +25,6 @@ interface LandingPageProps {
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
 }
 type Colours =
   | "default"
@@ -50,8 +48,6 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
   setTypingUsers,
   setSeenNewNotifications,
   socket,
-  DOMAIN_NAME,
-  SERVER_PORT,
 }: LandingPageProps) => {
   const [colors, setColors] = useState<Colours[]>(["default", "default"]);
   const username = useRef<HTMLInputElement | null>(null);
@@ -69,7 +65,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     if (name === "" || image === "") return;
     try {
       const response = await axios.post(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/auth/register`,
+        `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/auth/register`,
         { username: name, password: pass, email: email, avatar: image }
       );
       if (response.status === 200) {
@@ -90,7 +86,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     }
 
     if (socket === undefined) {
-      var newSocket: SocketWithUser = io(`ws://${DOMAIN_NAME}:${SERVER_PORT}`, {
+      var newSocket: SocketWithUser = io(`ws://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`, {
         query: {
           username: name,
           avatar: avatar,
@@ -111,8 +107,6 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
             return [
               ...not,
               <FriendRequest
-                DOMAIN_NAME={DOMAIN_NAME}
-                SERVER_PORT={SERVER_PORT}
                 key={newSocket.id}
                 setChatRooms={setChatRooms}
                 setConnectedUsers={setConnectedUsers}
@@ -252,7 +246,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                   title="Email"
                 />
                 <Input
-                  id="username-input"
+                  id="password-input"
                   label="Password"
                   width="w-1/2"
                   ref={password}
@@ -261,7 +255,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
                   clearable
                   contentRightStyling={false}
                   placeholder="Enter password..."
-                  title="usernameInputBox"
+                  title="passwordInputBox"
                 />
               </div>
               <div className="flex justify-center items-center">

@@ -6,8 +6,6 @@ import ChatRoom, { ChatRoomDefinition } from "./ChatRoom";
 import axios from "axios";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
 interface FriendRequestProps {
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
   sender: UserDefinition;
   socket: SocketWithUser;
   senderSocketID: string;
@@ -27,8 +25,6 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
   setConnectedUsers,
   setFriends,
   setChatRooms,
-  DOMAIN_NAME,
-  SERVER_PORT,
 }: FriendRequestProps) => {
   const router = useRouter();
   const { user } = useContext<UserContextType>(UserContext);
@@ -60,7 +56,7 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
               
               try {
                 const response = await axios.post(
-                  `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms`,
+                  `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms`,
                   {
                     owner: [user._id, sender._id],
                     type: "private",

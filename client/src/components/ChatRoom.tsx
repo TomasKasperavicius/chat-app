@@ -16,8 +16,6 @@ interface ChatRoomProps {
   chatRoom: ChatRoomDefinition | undefined;
   socket: SocketWithUser | undefined;
   typingUsers: string[];
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
 }
 export interface ChatRoomDefinition {
   _id: string;
@@ -30,8 +28,6 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   chatRoom,
   socket,
   typingUsers,
-  DOMAIN_NAME,
-  SERVER_PORT
 }: ChatRoomProps) => {
   const messageInput = useRef<HTMLInputElement | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -48,7 +44,7 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   
   const saveMessageToMongoDB = async (message: Message)=>{
     await axios.put(
-      `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms/${chatRoom?._id}`,{
+      `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms/${chatRoom?._id}`,{
         headers: {
           'Content-Type': 'application/json', 
         },

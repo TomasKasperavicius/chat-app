@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+
 import { NextRouter, useRouter } from "next/router";
 import ChatRoom, { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserDefinition, SocketWithUser, Message } from "@/pages";
@@ -36,8 +36,6 @@ interface ChatRoomHomeProps {
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentUser: Dispatch<SetStateAction<UserDefinition>>;
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
 }
 
 const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
@@ -53,15 +51,13 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
   socket,
   toggleSideBar,
   typingUsers,
-  DOMAIN_NAME,
-  SERVER_PORT,
 }) => {
   const router: NextRouter = useRouter();
   const [data, setData] = useState<ChatRoomDefinition>();
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `http://${DOMAIN_NAME}:${SERVER_PORT}/chatrooms/${router.query.id}`
+        `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms/${router.query.id}`
       );
       setData(response.data);
     };
@@ -89,18 +85,18 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
       {toggleSideBar && (
           <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
         )}
-        <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers} DOMAIN_NAME={DOMAIN_NAME} SERVER_PORT={SERVER_PORT}/>
+        <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers}/>
       </Row>
     </Container>
   );
 };
 
-export const getServerSideProps = async () => {
-  return {
-    props: {
-      DOMAIN_NAME: process.env.DOMAIN_NAME,
-      SERVER_PORT: process.env.SERVER_PORT,
-    },
-  };
-};
+// export const getServerSideProps = async () => {
+//   return {
+//     props: {
+//       DOMAIN_NAME: process.env.DOMAIN_NAME,
+//       SERVER_PORT: process.env.SERVER_PORT,
+//     },
+//   };
+// };
 export default ChatRoomHome;

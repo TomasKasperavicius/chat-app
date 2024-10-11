@@ -7,7 +7,6 @@ import {
 import {
   ThemeProvider as NextThemesProvider,
 } from "next-themes";
-import { SessionProvider } from "next-auth/react";
 import { FunctionComponent, useContext, useEffect, useState } from "react";
 import { Message, SocketWithUser, UserDefinition } from ".";
 import { ChatRoomDefinition } from "@/components/ChatRoom";
@@ -48,7 +47,6 @@ export default function App({ Component, pageProps }: AppProps) {
   //   }
   // }, []);
   return (
-    <SessionProvider session={pageProps.session}>
       <NextThemesProvider
 
         defaultTheme="system"
@@ -90,6 +88,5 @@ export default function App({ Component, pageProps }: AppProps) {
           </main>
         </NextUIProvider>
       </NextThemesProvider>
-    </SessionProvider>
   );
 }

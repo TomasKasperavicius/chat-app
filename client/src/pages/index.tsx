@@ -30,8 +30,7 @@ interface IndexProps {
     React.SetStateAction<FunctionComponent<{}>[]>
   >;
   setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
-  DOMAIN_NAME: string;
-  SERVER_PORT: number;
+
 }
 export interface UserDefinition {
   _id: string;
@@ -47,11 +46,9 @@ export interface UserDefinition {
 export interface SocketWithUser extends Socket {
   user?: UserDefinition;
 }
-// TODO: change login with nextUI modal component or setup google/github login
-// var socket: SocketWithUser | undefined = undefined;
+
 function Index({
-  DOMAIN_NAME,
-  SERVER_PORT,
+
   chatRooms,
   connectedUsers,
   notifications,
@@ -84,19 +81,10 @@ function Index({
         setTypingUsers={setTypingUsers}
         setNotifications={setNotifications}
         socket={socket}
-        DOMAIN_NAME={DOMAIN_NAME}
-        SERVER_PORT={SERVER_PORT}
+
       />
     </Container>
   );
 }
 
-export const getStaticProps = async () => {
-  return {
-    props: {
-      DOMAIN_NAME: process.env.DOMAIN_NAME,
-      SERVER_PORT: process.env.SERVER_PORT,
-    },
-  };
-};
 export default Index;
