@@ -77,8 +77,11 @@ const Nav: FunctionComponent<NavProps> = ({
               isActive={link === activeLink}
               onClick={() => {
                 setActiveLink(link === activeLink ? "" : link);
-                if (link === "Friends" || activeLink === "Friends")
-                  setToggleSidebar(!toggleSideBar);
+                if (link === activeLink)
+                  setToggleSidebar(false);
+                else{
+                  setToggleSidebar(true);
+                }
               }}
             >
               {link}
