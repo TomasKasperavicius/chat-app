@@ -53,7 +53,6 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
               setConnectedUsers((users) => {
                 return [...users.filter((u) => u.socketID !== senderSocketID)];
               });
-              
               try {
                 const response = await axios.post(
                   `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms`,
@@ -63,21 +62,16 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
                     participants: [user._id, sender._id],
                   }
                   );
-                  console.log(response.data);
                   const chatRoom: ChatRoomDefinition = response.data;
                   socket.emit(
                     "accept friend request",
                     user,
-                    senderSocketID,
-                    chatRoom
+                    senderSocketID
                     );
-                    socket.emit("joinRoom", chatRoom._id);
                     setFriends((friends) => {
-                      return [...friends, { ...sender, socketID: senderSocketID,privateChatID:chatRoom._id }];
+                      return [...friends, { ...sender, socketID: senderSocketID}];
                     });
-                    setChatRooms((chatRooms: ChatRoomDefinition[]) => {
-                      return [...chatRooms, chatRoom] as ChatRoomDefinition[];
-                    });
+                   
                   } catch (error) {
                 console.error(error);
               }

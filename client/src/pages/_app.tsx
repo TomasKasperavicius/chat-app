@@ -12,6 +12,7 @@ import { Message, SocketWithUser, UserDefinition } from ".";
 import { ChatRoomDefinition } from "@/components/ChatRoom";
 import { UserContext, UserContextType, UserProvider } from "@/Providers/UserContext";
 import { NextRouter, useRouter } from "next/router";
+import { ChatRoomProvider } from "@/Providers/ChatRoomContext";
 
 const lightTheme = createTheme({
   type: "light",
@@ -32,13 +33,11 @@ export default function App({ Component, pageProps }: AppProps) {
   const [toggleSideBar, setToggleSideBar] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [notifications, setNotifications] = useState<FunctionComponent[]>([]);
-  const [chatRooms, setChatRooms] = useState<ChatRoomDefinition[]>([]);
   const [toggleNotifications, setToggleNotifications] =
     useState<boolean>(false);
   const [seenNewNotifications, setSeenNewNotifications] =
     useState<boolean>(true);
   const [activeLink, setActiveLink] = useState<string>("");
-  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
   const router: NextRouter = useRouter();
 
   // useEffect(() => {
@@ -59,6 +58,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <NextUIProvider >
 
           <main className="w-full h-screen m-0">
+            <ChatRoomProvider>
             <UserProvider>
             <Component
               {...pageProps}
@@ -66,10 +66,8 @@ export default function App({ Component, pageProps }: AppProps) {
               friends={friends}
               notifications={notifications}
               seenNewNotifications={seenNewNotifications}
-              chatRooms={chatRooms}
               activeLink={activeLink}
               setActiveLink={setActiveLink}
-              setChatRooms={setChatRooms}
               setConnectedUsers={setConnectedUsers}
               setFriends={setFriends}
               setMessages={setMessages}
@@ -85,6 +83,7 @@ export default function App({ Component, pageProps }: AppProps) {
               typingUsers={typingUsers}
             />
             </UserProvider>
+            </ChatRoomProvider>
           </main>
         </NextUIProvider>
       </NextThemesProvider>

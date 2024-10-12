@@ -32,40 +32,37 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   const messageInput = useRef<HTMLInputElement | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const { user } = useContext<UserContextType>(UserContext);
-  useEffect(() => {
+  useEffect(() => { 
     socket?.removeAllListeners("message");
+    if (chatRoom) {
+      setMessages([...chatRoom.messages]);
+    }
     socket?.on("message", async (message: Message) => {
       setMessages((messages) => {
         return [...messages, message];
       });
-      await saveMessageToMongoDB(message)
     });
   },[chatRoom]);
   
   const saveMessageToMongoDB = async (message: Message)=>{
-    await axios.put(
-      `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms/${chatRoom?._id}`,{
-        headers: {
-          'Content-Type': 'application/json', 
-        },
-        data:{
-          owner: chatRoom?.owner,
-          participants: chatRoom?.participants,
-          messages: message,
-          type: chatRoom?.type,
+    await axios.patch(
+      `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms/${chatRoom?._id}/messages`,{
+        body: message.body,
+         sender: message.sender,
+         date: message.date
         }
-      }
     );
   }
 
   const sendMessage = async () => {
     const msg: Message = {
       sender: user,
-      timestamp: new Date().getTime(),
-      content: messageInput?.current?.value,
+      date: new Date().getTime(),
+      body: messageInput?.current?.value,
     };
     messageInput!.current!.value = "";
     socket?.emit("message", chatRoom?._id, msg);
+    await saveMessageToMongoDB(msg)
   };
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
@@ -81,11 +78,11 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
                         <Textarea
                           readOnly
                           label={"You"}
-                          placeholder={message.content}
+                          placeholder={message.body}
                           status="success"
                         />
                         <span>
-                          {new Date(message.timestamp).toLocaleTimeString()}
+                          {new Date(message.date).toLocaleTimeString()}
                         </span>
                       </div>
                     </div>
@@ -96,10 +93,10 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
                       <Textarea
                         readOnly
                         label={message.sender?.username}
-                        placeholder={message.content}
+                        placeholder={message.body}
                       />
                       <span>
-                        {new Date(message.timestamp).toLocaleTimeString()}
+                        {new Date(message.date).toLocaleTimeString()}
                       </span>
                     </div>
                   </div>

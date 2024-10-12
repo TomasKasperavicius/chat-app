@@ -67,8 +67,6 @@ const Home: FunctionComponent<HomeProps> = ({
   typingUsers,
 }) => {
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
-  console.log(connectedUsers);
-
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr: UserDefinition[]) => {
@@ -86,15 +84,6 @@ const Home: FunctionComponent<HomeProps> = ({
     if (!user.loggedIn) return;
     const newFriends = connectedUsers.filter((connectedUser) =>
       user.friends.some((id) => connectedUser._id === id)
-    );
-    console.log("connectedUsers");
-    console.log(user.friends);
-    console.log(
-      connectedUsers.filter(
-        (connectedUser) =>
-          connectedUser._id !== user._id &&
-          !user.friends.some((id) => id === connectedUser._id)
-      )
     );
     setFriends([...newFriends]);
   }, [user, connectedUsers]);

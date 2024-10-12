@@ -21,14 +21,12 @@ const fetchConnectedUsers = async (io: SocketIOServer): Promise<UserInfo[]> => {
 
 const socketHandler = (io: SocketIOServer): void => {
   io.on("connection", async (socket: Socket) => {
-    console.log("User connected:", socket.id);
 
     const connectedUsers = await fetchConnectedUsers(io);
     io.emit("update connected users", connectedUsers);
 
     socket.on("joinRoom", (roomId) => {
       socket.join(roomId);
-      console.log(`User with ID: ${socket.id} joined room: ${roomId}`);
     });
 
     socket.on("message", async (roomId, message) => {
@@ -45,11 +43,10 @@ const socketHandler = (io: SocketIOServer): void => {
     );
     socket.on(
       "accept friend request",
-      (sender, receiverSocketID: string, privateChatRoom) => {
-        console.log(sender);
+      (sender, receiverSocketID: string) => {
         socket
           .to(receiverSocketID)
-          .emit("friend request accepted", sender, socket.id, privateChatRoom);
+          .emit("friend request accepted", sender, socket.id);
       }
     );
     socket.on("cancel friend request", (receiverSocketID: string) => {

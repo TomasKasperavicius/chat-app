@@ -6,8 +6,8 @@ import { ChatRoomDefinition } from "@/components/ChatRoom";
 export interface Message {
   sender: UserDefinition | undefined;
   receiver?: UserDefinition | undefined;
-  timestamp: number;
-  content: string | undefined;
+  date: number;
+  body: string | undefined;
 }
 
 interface IndexProps {

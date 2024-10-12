@@ -60,7 +60,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     const name = username?.current?.value || "";
     const pass = password?.current?.value || "";
     const email = password?.current?.value || "";
-
+    var id = null;
     const image = avatar;
     if (name === "" || image === "") return;
     try {
@@ -71,6 +71,7 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
       if (response.status === 200) {
         const { _id, avatar, chatRooms, friends, username }: UserDefinition =
           response.data;
+          id = _id;
         setCurrentUser({
           ...user,
           _id: _id,
@@ -88,9 +89,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     if (socket === undefined) {
       var newSocket: SocketWithUser = io(`ws://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`, {
         query: {
-          _id: user._id,
-          username: user.username,
-          avatar: user.avatar,
+          _id: id,
+          username: name,
+          avatar: image,
         },
       });
 
@@ -134,7 +135,6 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
         (
           sender: UserDefinition,
           senderSocketID: string,
-          privateChatRoom: ChatRoomDefinition
         ) => {
           setFriends((friends) => {
             return [
@@ -142,21 +142,14 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
               {
                 ...sender,
                 socketID: senderSocketID,
-                privateChatID: privateChatRoom._id,
               },
             ];
           });
           setConnectedUsers((users) => {
             return [...users.filter((u) => u.socketID !== senderSocketID)];
           });
-          newSocket.emit("joinRoom", privateChatRoom._id);
         }
       );
-      newSocket.on("room created", (username: string) => {
-        setTypingUsers((typingUsers) => {
-          return [...typingUsers, username];
-        });
-      });
       newSocket.on("typing", (username: string) => {
         setTypingUsers((typingUsers) => {
           return [...typingUsers, username];

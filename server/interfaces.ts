@@ -7,10 +7,10 @@ export interface UserInfo {
   socketID?: string;
 }
 export interface Message {
-  sender: string;
+  sender: UserInfo;
   receiver?: string;
-  timestamp: number;
-  content: string | undefined;
+  date: number;
+  body: string | undefined;
 }
 export interface IChatRoom{
   owner: string,

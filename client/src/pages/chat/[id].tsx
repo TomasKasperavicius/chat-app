@@ -60,6 +60,7 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
         `http://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}/chatrooms/${router.query.id}`
       );
       setData(response.data);
+      socket?.emit('joinRoom', router.query.id);
     };
     fetchData();
   }, []);
