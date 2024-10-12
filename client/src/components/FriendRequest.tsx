@@ -2,7 +2,7 @@ import { SocketWithUser, UserDefinition } from "@/pages";
 import { Button, Card, User } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { FunctionComponent, useContext } from "react";
-import ChatRoom, { ChatRoomDefinition } from "./ChatRoom";
+import { ChatRoomDefinition } from "./ChatRoom";
 import axios from "axios";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
 interface FriendRequestProps {
@@ -24,7 +24,6 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
   setNotifications,
   setConnectedUsers,
   setFriends,
-  setChatRooms,
 }: FriendRequestProps) => {
   const router = useRouter();
   const { user } = useContext<UserContextType>(UserContext);
@@ -62,7 +61,6 @@ const FriendRequest: FunctionComponent<FriendRequestProps> = ({
                     participants: [user._id, sender._id],
                   }
                   );
-                  const chatRoom: ChatRoomDefinition = response.data;
                   socket.emit(
                     "accept friend request",
                     user,

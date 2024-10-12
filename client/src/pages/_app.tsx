@@ -7,10 +7,9 @@ import {
 import {
   ThemeProvider as NextThemesProvider,
 } from "next-themes";
-import { FunctionComponent, useContext, useEffect, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { Message, SocketWithUser, UserDefinition } from ".";
-import { ChatRoomDefinition } from "@/components/ChatRoom";
-import { UserContext, UserContextType, UserProvider } from "@/Providers/UserContext";
+import { UserProvider } from "@/Providers/UserContext";
 import { NextRouter, useRouter } from "next/router";
 import { ChatRoomProvider } from "@/Providers/ChatRoomContext";
 
@@ -38,8 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [seenNewNotifications, setSeenNewNotifications] =
     useState<boolean>(true);
   const [activeLink, setActiveLink] = useState<string>("");
-  const router: NextRouter = useRouter();
-
+  // const router: NextRouter = useRouter();
   // useEffect(() => {
   //   if (socket === undefined || !user.loggedIn) {
   //     router.push("/");

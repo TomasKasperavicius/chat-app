@@ -1,5 +1,5 @@
 import { Container } from "@nextui-org/react";
-import React, { Dispatch, SetStateAction, FunctionComponent } from "react";
+import React, { FunctionComponent } from "react";
 import { Socket } from "socket.io-client";
 import LandingPage from "@/components/LandingPage";
 import { ChatRoomDefinition } from "@/components/ChatRoom";
@@ -48,15 +48,8 @@ export interface SocketWithUser extends Socket {
 }
 
 function Index({
-
   chatRooms,
-  connectedUsers,
-  notifications,
-  seenNewNotifications,
   setChatRooms,
-  toggleNotifications,
-  toggleSideBar,
-  typingUsers,
   socket,
   friends,
   setSeenNewNotifications,

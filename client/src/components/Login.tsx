@@ -1,4 +1,4 @@
-import { Message, SocketWithUser, UserDefinition } from "@/pages";
+import { SocketWithUser, UserDefinition } from "@/pages";
 import { Logo } from "@/pages/Logo";
 import { Input, Button } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";

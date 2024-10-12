@@ -1,6 +1,5 @@
 import { UserDefinition } from "@/pages";
 import {
-  Button,
   Dropdown,
   Link,
   Navbar,
@@ -11,7 +10,7 @@ import {
 } from "@nextui-org/react";
 import { useTheme as useNextTheme } from "next-themes";
 import { useRouter } from "next/router";
-import { FunctionComponent, useState, useContext } from "react";
+import { FunctionComponent, useContext } from "react";
 interface NavProps {
   toggleSideBar: boolean;
   notifications: React.FunctionComponent<{}>[];
@@ -31,14 +30,11 @@ import { UserContext, UserContextType } from "@/Providers/UserContext";
 
 const Nav: FunctionComponent<NavProps> = ({
   notifications,
-  toggleSideBar,
   seenNewNotifications,
   activeLink,
   setActiveLink,
   setToggleSidebar,
-  setNotifications,
   setSeenNewNotifications,
-  setToggleNotifications,
 }: NavProps) => {
   const collapseItems = [
     "Friends",
@@ -68,7 +64,7 @@ const Nav: FunctionComponent<NavProps> = ({
         </Text>
       </Navbar.Brand>
       <Navbar.Content hideIn="xs" variant="underline">
-        {links.map((link, id) => {
+        {links.map((link) => {
           return (
             <Navbar.Link
               key={`${link}-link`}
@@ -161,7 +157,7 @@ const Nav: FunctionComponent<NavProps> = ({
         </Dropdown>
       </Navbar.Content>
       <Navbar.Collapse>
-        {collapseItems.map((item, key) => (
+        {collapseItems.map((item) => (
           <Navbar.CollapseItem key={item}>
             <Link
               color="inherit"

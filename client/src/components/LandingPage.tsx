@@ -1,5 +1,5 @@
 import { Message, SocketWithUser, UserDefinition } from "@/pages";
-import { Button, Input, User, Card, Text } from "@nextui-org/react";
+import { Button, Input, User, Text } from "@nextui-org/react";
 import { useRouter } from "next/router";
 import { FunctionComponent, useContext, useRef, useState } from "react";
 import { io } from "socket.io-client";
@@ -37,14 +37,11 @@ type Colours =
   | undefined;
 
 const LandingPage: React.FunctionComponent<LandingPageProps> = ({
-  friends,
-  chatRooms,
   setChatRooms,
   setSocket,
   setFriends,
   setConnectedUsers,
   setNotifications,
-  setMessages,
   setTypingUsers,
   setSeenNewNotifications,
   socket,

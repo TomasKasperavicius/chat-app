@@ -4,12 +4,8 @@ import {
   Row,
   Col,
   User,
-  Card,
-  Button,
-  Loading,
 } from "@nextui-org/react";
 import { Dispatch, FunctionComponent, ReactNode, SetStateAction, useContext } from "react";
-import AddIcon from "@mui/icons-material/Add";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { Message, SocketWithUser, UserDefinition } from ".";
 import { useRouter } from "next/router";
@@ -41,38 +37,19 @@ interface NotificationsProps {
 }
 
 const Notifications: FunctionComponent<NotificationsProps> = ({
-  connectedUsers,
   friends,
   notifications,
   seenNewNotifications,
   activeLink,
-  setConnectedUsers,
-  setFriends,
-  setMessages,
   setNotifications,
   setSeenNewNotifications,
   setToggleNotifications,
   setToggleSidebar,
   setActiveLink,
-  setTypingUsers,
-  socket,
-  toggleNotifications,
   toggleSideBar,
-  typingUsers,
 }: NotificationsProps) => {
   const {user} = useContext<UserContextType>(UserContext)
   const router = useRouter()
-  const sendFriendRequest = (socketID: string | undefined) => {
-    if (!socketID) return;
-    setConnectedUsers((arr) => {
-      arr.find((u) => u.socketID === socketID)!.receivedFriendRequest = true;
-      return [...arr];
-    });
-    socket?.emit("send friend request", socketID, user);
-    // setConnectedUsers((u) => {
-    //   return u.filter((obj) => obj.socketID !== socketID);
-    // });
-  };
   return (
     <Container fluid responsive gap={0} css={{ minWidth: "100%" }}>
       <Row fluid>

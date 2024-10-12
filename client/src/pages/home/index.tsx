@@ -9,18 +9,14 @@ import {
   Loading,
 } from "@nextui-org/react";
 import {
-  useState,
   FunctionComponent,
   Key,
   ReactNode,
-  SetStateAction,
   useContext,
   useEffect,
 } from "react";
 import { Message, SocketWithUser, UserDefinition } from "..";
 import AddIcon from "@mui/icons-material/Add";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import { NextRouter, useRouter } from "next/router";
 import { UserContextType, UserContext } from "@/Providers/UserContext";
 import Sidebar from "@/components/Sidebar";
 interface HomeProps {
@@ -55,18 +51,15 @@ const Home: FunctionComponent<HomeProps> = ({
   setActiveLink,
   setConnectedUsers,
   setFriends,
-  setMessages,
   setNotifications,
   setSeenNewNotifications,
   setToggleNotifications,
   setToggleSidebar,
-  setTypingUsers,
   socket,
   toggleNotifications,
   toggleSideBar,
-  typingUsers,
 }) => {
-  const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
+  const { user } = useContext<UserContextType>(UserContext);
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr: UserDefinition[]) => {
@@ -76,9 +69,6 @@ const Home: FunctionComponent<HomeProps> = ({
       return [...arr];
     });
     socket?.emit("send friend request", socketID, user);
-    // setConnectedUsers((u) => {
-    //   return u.filter((obj) => obj.socketID !== socketID);
-    // });
   };
   useEffect(() => {
     if (!user.loggedIn) return;

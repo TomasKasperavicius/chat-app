@@ -1,5 +1,5 @@
 import Nav from "@/components/Nav";
-import { Row, Col, User, Container } from "@nextui-org/react";
+import { Row, Col, Container } from "@nextui-org/react";
 import {
   Dispatch,
   FunctionComponent,
@@ -92,12 +92,4 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
   );
 };
 
-// export const getServerSideProps = async () => {
-//   return {
-//     props: {
-//       DOMAIN_NAME: process.env.DOMAIN_NAME,
-//       SERVER_PORT: process.env.SERVER_PORT,
-//     },
-//   };
-// };
 export default ChatRoomHome;
