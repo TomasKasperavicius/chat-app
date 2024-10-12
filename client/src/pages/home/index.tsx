@@ -98,6 +98,7 @@ const Home: FunctionComponent<HomeProps> = ({
           <Sidebar
             friends={friends}
             setToggleSidebar={setToggleSidebar}
+            toggleSidebar={toggleSideBar} 
             activeLink={activeLink}
             setActiveLink={setActiveLink}
           />

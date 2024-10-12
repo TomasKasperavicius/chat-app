@@ -20,8 +20,10 @@ import { ChatRoomDefinition } from "./ChatRoom";
 
 const Sidebar: FunctionComponent<SidebarProps> = ({
   activeLink,
+  toggleSidebar,
   setActiveLink,
   friends,
+
   setToggleSidebar,
 }) => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
@@ -60,67 +62,63 @@ const Sidebar: FunctionComponent<SidebarProps> = ({
     };
   }, []);
   return (
-    <Col
-      span={2}
-      className={`fixed z-50 bg-black `}
-      css={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderRight: "solid",
-      }}
-    >
-      <div ref={sidebarRef}>
-        {activeLink === "Friends" && friends.length > 0 && (
-          <>
-            <div className="flex justify-around p-2">
-              Friends online: {friends.length}
-              <HighlightOffIcon
-                onClick={() => setToggleSidebar(false)}
-                className="hover:opacity-70 cursor-pointer"
-              />
-            </div>
-            <div className="m-2">
-              <Divider className="my-4" />
-              {friends.map((friend: UserDefinition, key: Key) => (
-                <div key={key} className="w-full m-5">
-                  <User
-                    name={friend.username}
-                    src={friend.avatar}
-                    zoomed
-                    pointer
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-        {activeLink === "Chats" && chatRooms.length > 0 && (
-          <>
-            <div className="flex justify-around p-2">
-              Your chatrooms: {chatRooms.length}
-              <HighlightOffIcon
-                onClick={() => setToggleSidebar(false)}
-                className="hover:opacity-70 cursor-pointer"
-              />
-            </div>
-            <div className="m-2">
-              <Divider className="my-4" />
-              {chatRooms.map((chatroom: ChatRoomDefinition, key: Key) => (
-                <div key={key} className="w-full m-5">
-                  <User
-                    name={"Chat-" + key}
-                    zoomed
-                    pointer
-                    onClick={() => router.push(`/chat/${chatroom._id}`)}
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    </Col>
+    <div
+  className={`fixed h-full flex flex-col border-r border-solid transition-transform duration-300 ease-in-out transform 
+  ${toggleSidebar ? 'translate-x-0' : '-translate-x-full'} xs:w-[300px] sm:w-[250px] md:w-[300px]`} 
+>
+    <div ref={sidebarRef}>
+      {activeLink === "Friends" && friends.length > 0 && (
+        <>
+          <div className="flex justify-around p-2">
+            Friends online: {friends.length}
+            <HighlightOffIcon
+              onClick={() => setToggleSidebar(false)}
+              className="hover:opacity-70 cursor-pointer"
+            />
+          </div>
+          <div className="m-2">
+            <Divider className="my-4" />
+            {friends.map((friend: UserDefinition, key: Key) => (
+              <div key={key} className="w-full m-5">
+                <User
+                  name={friend.username}
+                  src={friend.avatar}
+                  zoomed
+                  pointer
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {activeLink === "Chats" && chatRooms.length > 0 && (
+        <>
+          <div className="flex justify-around p-2">
+            Your chatrooms: {chatRooms.length}
+            <HighlightOffIcon
+              onClick={() => setToggleSidebar(false)}
+              className="hover:opacity-70 cursor-pointer"
+            />
+          </div>
+          <div className="m-2">
+            <Divider className="my-4" />
+            {chatRooms.map((chatroom: ChatRoomDefinition, key: Key) => (
+              <div key={key} className="w-full m-5">
+                <User
+                  name={"Chat-" + key}
+                  zoomed
+                  pointer
+                  onClick={() => router.push(`/chat/${chatroom._id}`)}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+  
+
   );
 };
 

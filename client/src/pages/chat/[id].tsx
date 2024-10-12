@@ -84,7 +84,7 @@ const ChatRoomHome: FunctionComponent<ChatRoomHomeProps> = ({
       </Row>
       <Row fluid css={{ minHeight: "100vh" }}>
       {toggleSideBar && (
-          <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
+          <Sidebar friends={friends} toggleSidebar={toggleSideBar} setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
         )}
         <ChatRoom chatRoom={data} socket={socket} typingUsers={typingUsers}/>
       </Row>
