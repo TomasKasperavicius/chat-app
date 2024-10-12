@@ -148,12 +148,4 @@ const ChatRoom: FunctionComponent<ChatRoomProps> = ({
   );
 };
 
-export const getServerSideProps = async () => {
-  return {
-    props: {
-      DOMAIN_NAME: process.env.DOMAIN_NAME,
-      SERVER_PORT: process.env.SERVER_PORT,
-    },
-  };
-};
 export default ChatRoom;

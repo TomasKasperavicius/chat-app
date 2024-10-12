@@ -8,6 +8,7 @@ const fetchConnectedUsers = async (io: SocketIOServer): Promise<UserInfo[]> => {
   var connectedUsers: UserInfo[] = [];
   allSockets.forEach((socket) => {
     connectedUsers.push({
+      _id: socket.handshake.query._id as string,
       avatar: socket.handshake.query.avatar as string,
       email: socket.handshake.query.email as string,
       username: socket.handshake.query.username as string,

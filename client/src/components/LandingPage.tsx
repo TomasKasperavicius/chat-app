@@ -88,8 +88,9 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
     if (socket === undefined) {
       var newSocket: SocketWithUser = io(`ws://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`, {
         query: {
-          username: name,
-          avatar: avatar,
+          _id: user._id,
+          username: user.username,
+          avatar: user.avatar,
         },
       });
 
@@ -166,29 +167,22 @@ const LandingPage: React.FunctionComponent<LandingPageProps> = ({
           return [...typingUsers.filter((el) => el !== username)];
         });
       });
-      newSocket.on(
-        "update connected users",
-        (connectedUsers: UserDefinition[]) => {
-          setFriends((allFriends) => {
-            setConnectedUsers((users) => {
-              const newUsers = connectedUsers.filter((u) => {
-                if (
-                  u.socketID !== newSocket!.id &&
-                  users.find((us) => u.socketID === us.socketID) ===
-                    undefined &&
-                  allFriends.find((f) => f.socketID === u.socketID) ===
-                    undefined
-                )
-                  return true;
-                return false;
-              });
-              return [...users, ...newUsers];
-            });
-            return allFriends;
+      newSocket.on("update connected users", (connectedUsers: UserDefinition[]) => {
+        setFriends((allFriends) => {
+          setConnectedUsers((users) => {
+            const newUsers = connectedUsers.filter(
+              (u) =>
+                u.socketID !== newSocket?.id &&
+                !users.some((us) => u.socketID === us.socketID) &&
+                !allFriends.some((f) => f.socketID === u.socketID)
+            );
+            return [...users, ...newUsers];
           });
-        }
-      );
-      newSocket.on("user disconnect", (sockedID: string) => {
+          return allFriends;
+        });
+      });
+      
+      newSocket.on("user disconnected", (sockedID: string) => {
         setConnectedUsers((users) => {
           return [...users.filter((u) => u.socketID !== sockedID)];
         });

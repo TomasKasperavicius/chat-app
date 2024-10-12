@@ -36,7 +36,7 @@ export interface UserDefinition {
   _id: string;
   avatar: string;
   username: string;
-  friends: UserDefinition[];
+  friends: string[];
   chatRooms: ChatRoomDefinition[];
   socketID?: string;
   loggedIn?: boolean;

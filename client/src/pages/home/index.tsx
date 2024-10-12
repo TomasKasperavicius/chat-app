@@ -67,7 +67,8 @@ const Home: FunctionComponent<HomeProps> = ({
   typingUsers,
 }) => {
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
-  
+  console.log(connectedUsers);
+
   const sendFriendRequest = (socketID: string | undefined) => {
     if (!socketID) return;
     setConnectedUsers((arr: UserDefinition[]) => {
@@ -81,6 +82,23 @@ const Home: FunctionComponent<HomeProps> = ({
     //   return u.filter((obj) => obj.socketID !== socketID);
     // });
   };
+  useEffect(() => {
+    if (!user.loggedIn) return;
+    const newFriends = connectedUsers.filter((connectedUser) =>
+      user.friends.some((id) => connectedUser._id === id)
+    );
+    console.log("connectedUsers");
+    console.log(user.friends);
+    console.log(
+      connectedUsers.filter(
+        (connectedUser) =>
+          connectedUser._id !== user._id &&
+          !user.friends.some((id) => id === connectedUser._id)
+      )
+    );
+    setFriends([...newFriends]);
+  }, [user, connectedUsers]);
+
   return (
     <Container fluid responsive gap={0} className="h-full w-screen m-0">
       <Row fluid className="w-screen">
@@ -98,42 +116,53 @@ const Home: FunctionComponent<HomeProps> = ({
       </Row>
       <Row fluid className="relative h-full">
         {toggleSideBar && (
-          <Sidebar friends={friends}  setToggleSidebar={setToggleSidebar} activeLink={activeLink} setActiveLink={setActiveLink}/>
+          <Sidebar
+            friends={friends}
+            setToggleSidebar={setToggleSidebar}
+            activeLink={activeLink}
+            setActiveLink={setActiveLink}
+          />
         )}
         <Col>
           {!toggleNotifications ? (
             <div className=" p-5">
               {connectedUsers.length > 0 ? (
-                connectedUsers.map((u: UserDefinition, key: Key) => {
-                  return (
-                    <Card
-                      key={key}
-                      css={{ p: "$6", mw: "300px", margin: "20px" }}
-                    >
-                      <Card.Header>
-                        <User name={u.username} src={u.avatar} />
-                      </Card.Header>
-                      <Card.Footer>
-                        {!u.receivedFriendRequest ? (
-                          <Button
-                            className="hover:opacity-70"
-                            onClick={() => sendFriendRequest(u?.socketID)}
-                            iconRight={<AddIcon />}
-                          >
-                            Add to friends
-                          </Button>
-                        ) : (
-                          <Button
-                            css={{ width: "100%" }}
-                            iconRight={<Loading color="white" size="sm" />}
-                          >
-                            Waiting for response...
-                          </Button>
-                        )}
-                      </Card.Footer>
-                    </Card>
-                  );
-                })
+                connectedUsers
+                  .filter(
+                    (connectedUser) =>
+                      connectedUser._id !== user._id &&
+                      !user.friends.some((id) => id === connectedUser._id)
+                  )
+                  .map((u: UserDefinition, key: Key) => {
+                    return (
+                      <Card
+                        key={key}
+                        css={{ p: "$6", mw: "300px", margin: "20px" }}
+                      >
+                        <Card.Header>
+                          <User name={u.username} src={u.avatar} />
+                        </Card.Header>
+                        <Card.Footer>
+                          {!u.receivedFriendRequest ? (
+                            <Button
+                              className="hover:opacity-70"
+                              onClick={() => sendFriendRequest(u?.socketID)}
+                              iconRight={<AddIcon />}
+                            >
+                              Add to friends
+                            </Button>
+                          ) : (
+                            <Button
+                              css={{ width: "100%" }}
+                              iconRight={<Loading color="white" size="sm" />}
+                            >
+                              Waiting for response...
+                            </Button>
+                          )}
+                        </Card.Footer>
+                      </Card>
+                    );
+                  })
               ) : (
                 <div className="h-screen flex justify-center items-center">
                   No new people online...

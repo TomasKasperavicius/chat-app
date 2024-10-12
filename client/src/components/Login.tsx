@@ -1,4 +1,4 @@
-import { UserDefinition } from "@/pages";
+import { Message, SocketWithUser, UserDefinition } from "@/pages";
 import { Logo } from "@/pages/Logo";
 import { Input, Button } from "@nextui-org/react";
 import axios, { AxiosResponse } from "axios";
@@ -6,8 +6,22 @@ import { FunctionComponent, useContext, useRef } from "react";
 import { useTheme, Text } from '@nextui-org/react';
 import { UserContextType, UserContext } from "@/Providers/UserContext";
 import { NextRouter, useRouter } from "next/router";
-
-const Login: FunctionComponent = () => {
+import { io } from "socket.io-client";
+import { ChatRoomDefinition } from "./ChatRoom";
+import FriendRequest from "./FriendRequest";
+interface LoginInterface{
+  socket: SocketWithUser | undefined;
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoomDefinition[]>>;
+  setFriends: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+  setSocket: React.Dispatch<React.SetStateAction<SocketWithUser | undefined>>;
+  setTypingUsers: React.Dispatch<React.SetStateAction<string[]>>;
+  setConnectedUsers: React.Dispatch<React.SetStateAction<UserDefinition[]>>;
+  setNotifications: React.Dispatch<
+    React.SetStateAction<FunctionComponent<{}>[]>
+  >;
+  setSeenNewNotifications: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const Login: FunctionComponent<LoginInterface> = ({socket,setSeenNewNotifications,setConnectedUsers,setNotifications,setChatRooms,setFriends,setTypingUsers,setSocket}:LoginInterface) => {
   const userName = useRef<HTMLInputElement | null>(null);
   const pass = useRef<HTMLInputElement | null>(null);
   const { user, setCurrentUser } = useContext<UserContextType>(UserContext);
@@ -21,8 +35,112 @@ const Login: FunctionComponent = () => {
       );
       const { _id, avatar, chatRooms, friends, username }: UserDefinition =
         response.data;
-        setCurrentUser(response.data);
-        router.push("/home");
+        setCurrentUser({...user,_id:_id, avatar:avatar,chatRooms:chatRooms,friends:friends,username:username,loggedIn:true});
+        if (socket === undefined) {
+          var newSocket: SocketWithUser = io(`ws://${process.env.NEXT_PUBLIC_DOMAIN_NAME}:${process.env.NEXT_PUBLIC_SERVER_PORT}`, {
+            query: {
+              _id: _id,
+              username: username,
+              avatar: avatar,
+            },
+          });
+    
+          newSocket.on(
+            "received friend request",
+            (sender: UserDefinition, senderSocketID: string) => {
+              setSeenNewNotifications(false);
+              setConnectedUsers((users) => {
+                users.find(
+                  (u) => u.socketID === senderSocketID
+                )!.receivedFriendRequest = true;
+                return [...users];
+              });
+              setNotifications((not: any) => {
+                return [
+                  ...not,
+                  <FriendRequest
+                    key={newSocket.id}
+                    setChatRooms={setChatRooms}
+                    setConnectedUsers={setConnectedUsers}
+                    setFriends={setFriends}
+                    setNotifications={setNotifications}
+                    socket={newSocket}
+                    sender={sender}
+                    senderSocketID={senderSocketID}
+                  />,
+                ];
+              });
+            }
+          );
+          newSocket.on("friend request canceled", (senderSocketID: string) => {
+            setConnectedUsers((users) => {
+              users.find(
+                (u) => u.socketID === senderSocketID
+              )!.receivedFriendRequest = false;
+              return [...users];
+            });
+          });
+          newSocket.on(
+            "friend request accepted",
+            (
+              sender: UserDefinition,
+              senderSocketID: string,
+              privateChatRoom: ChatRoomDefinition
+            ) => {
+              setFriends((friends) => {
+                return [
+                  ...friends,
+                  {
+                    ...sender,
+                    socketID: senderSocketID,
+                    privateChatID: privateChatRoom._id,
+                  },
+                ];
+              });
+              setConnectedUsers((users) => {
+                return [...users.filter((u) => u.socketID !== senderSocketID)];
+              });
+              newSocket.emit("joinRoom", privateChatRoom._id);
+            }
+          );
+          newSocket.on("room created", (username: string) => {
+            setTypingUsers((typingUsers) => {
+              return [...typingUsers, username];
+            });
+          });
+          newSocket.on("typing", (username: string) => {
+            setTypingUsers((typingUsers) => {
+              return [...typingUsers, username];
+            });
+          });
+          newSocket.on("stopped typing", (username: string) => {
+            setTypingUsers((typingUsers) => {
+              return [...typingUsers.filter((el) => el !== username)];
+            });
+          });
+          newSocket.on("update connected users", (connectedUsers: UserDefinition[]) => {
+            setFriends((allFriends) => {
+              setConnectedUsers((users) => {
+                const newUsers = connectedUsers.filter(
+                  (u) =>
+                    u.socketID !== newSocket?.id &&
+                    !users.some((us) => u.socketID === us.socketID) &&
+                    !allFriends.some((f) => f.socketID === u.socketID)
+                );
+                return [...users, ...newUsers];
+              });
+              return allFriends;
+            });
+          });
+          newSocket.on("user disconnected", (sockedID: string) => {
+            setConnectedUsers((users) => {
+              return [...users.filter((u) => u.socketID !== sockedID)];
+            });
+          });
+          newSocket.user = { ...user };
+          setSocket(newSocket);
+          router.push("/home");
+        }
     } catch (error) {
       console.log(error);
     }
